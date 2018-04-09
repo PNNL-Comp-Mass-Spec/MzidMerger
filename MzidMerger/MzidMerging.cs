@@ -565,10 +565,6 @@ namespace MzidMerger
             // We are focusing on merging results from split-fasta searches right now, so just include all of the DBSequences
             // IDs will need to be changed later to ensure distinction TODO
             target.AddRange(toMerge);
-            //foreach (var item in toMerge)
-            //{
-            //    target.Add(item);
-            //}
         }
 
         private Dictionary<string, PeptideObj> peptideDictionary = null;
@@ -606,19 +602,6 @@ namespace MzidMerger
             // We can have duplicate peptides across different fasta files; we do need to make sure the peptideEvidence references are appropriately updated
             foreach (var item in toMerge)
             {
-                //if (target.Any(x => x.Id.Equals(item.Id) && x.Equals(item)))
-                //{
-                //    // exact duplicate; no action needed, besides correcting the peptide references
-                //    continue;
-                //}
-                //
-                //if (target.Any(x => x.Id.Equals(item.Id)))
-                //{
-                //    // Duplicate ID, non-duplicate peptide: report it to the user!
-                //    Console.WriteLine("ERROR: duplicate peptide ID detected for non-duplicate peptide; skipping! ID: \"{0}\"", item.Id);
-                //    continue;
-                //}
-
                 if (peptideDictionary.TryGetValue(item.Id, out var existing))
                 {
                     if (existing.Equals(item))
@@ -999,7 +982,7 @@ namespace MzidMerger
             {
                 spectraDataLookupByName = new Dictionary<string, SpectraDataObj>();
                 spectrumResultLookupByFilenameAndSpecId = new Dictionary<string, SpectrumIdentificationResultObj>((int)(target.Count * 1.5));
-                //target.RemoveAll(x => x.BestSpecEVal() > maxSpecEValue); // TODO: change needed in PSI_Interface to properly do this
+                target.RemoveAll(x => x.BestSpecEVal() > maxSpecEValue);
                 // Only do this once, they are otherwise maintained as we go
                 foreach (var result in target)
                 {
@@ -1028,18 +1011,6 @@ namespace MzidMerger
 
             foreach (var item in toMerge)
             {
-                //if (target.Any(x => x.SpectraData.Name.Equals(item.SpectraData.Name) && x.SpectrumID.Equals(item.SpectrumID)))
-                //{
-                //    var match = target.First(x => x.SpectraData.Name.Equals(item.SpectraData.Name) && x.SpectrumID.Equals(item.SpectrumID));
-                //    Merge(match, item);
-                //    continue;
-                //}
-                //
-                //if (target.Any(x => x.SpectraData.Name.Equals(item.SpectraData.Name)))
-                //{
-                //    item.SpectraData = target.First(x => x.SpectraData.Name.Equals(item.SpectraData.Name)).SpectraData;
-                //}
-
                 var lookupName = CreateSpectrumResultLookupName(item.SpectraData.Name, item.SpectrumID);
                 if (spectrumResultLookupByFilenameAndSpecId.TryGetValue(lookupName, out var existing))
                 {
@@ -1074,7 +1045,7 @@ namespace MzidMerger
             }
 
             // Add all spectrum identification items
-            target.SpectrumIdentificationItems.AddRange(toMerge.SpectrumIdentificationItems.Where(x => x.GetSpecEValue() <= maxSpecEValue));
+            target.SpectrumIdentificationItems.AddRange(toMerge.SpectrumIdentificationItems.Where(x => !(x.GetSpecEValue() > maxSpecEValue)));
 
             if (!cleanupPostMerge)
             {
