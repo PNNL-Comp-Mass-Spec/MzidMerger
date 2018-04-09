@@ -16,6 +16,7 @@ namespace MzidMerger
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
             var targetFile = inputPaths.First();
+            var toMerge = inputPaths.Skip(1).ParallelPreprocess(x => new IdentDataObj(MzIdentMlReaderWriter.Read(x)), 1);
             var targetObj = new IdentDataObj(MzIdentMlReaderWriter.Read(targetFile));
 
             sw.Stop();
@@ -23,7 +24,7 @@ namespace MzidMerger
             sw.Restart();
 
             var merger = new MzidMerging(targetObj);
-            merger.MergeIdentData(inputPaths.Skip(1).Select(x => new IdentDataObj(MzIdentMlReaderWriter.Read(x))), maxSpecEValue, true);
+            merger.MergeIdentData(toMerge, maxSpecEValue, true);
 
             sw.Stop();
             Console.WriteLine("Mzid merge time: {0}", sw.Elapsed);
@@ -208,15 +209,24 @@ namespace MzidMerger
 
         private void MergeIdentData(IEnumerable<IdentDataObj> toMerge, double maxSpecEValue = 100.0, bool remapPostMerge = false)
         {
+            var sw = new System.Diagnostics.Stopwatch();
+            var mergedCount = 1;
             foreach (var mergeObj in toMerge)
             {
+                sw.Restart();
                 MergeIdentData(mergeObj, maxSpecEValue, remapPostMerge);
+                sw.Stop();
+                Console.WriteLine("Time to merge 1 file into {0}{1} files: {2}", mergedCount, mergedCount > 1 ? " merged" : "", sw.Elapsed);
             }
 
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            FilterAndRepopulateSequenceCollection(maxSpecEValue);
-            sw.Stop();
-            Console.WriteLine("Time to repopulate sequence collection: {0}", sw.Elapsed);
+            if (remapPostMerge)
+            {
+                sw.Restart();
+                FilterAndRepopulateSequenceCollection(maxSpecEValue);
+                sw.Stop();
+                Console.WriteLine("Time to repopulate sequence collection: {0}", sw.Elapsed);
+            }
+
             // Final TODO: rewrite all of the IDs, to ensure uniqueness
         }
 
