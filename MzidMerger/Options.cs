@@ -9,10 +9,10 @@ namespace MzidMerger
 {
     public class Options
     {
-        [Option("indir", ArgPosition = 1, Required = true, HelpText = "Directory containing mzid files to be merged.", HelpShowsDefault = false)]
+        [Option("inDir", ArgPosition = 1, Required = true, HelpText = "Path to directory containing mzid files to be merged.", HelpShowsDefault = false)]
         public string InputDirectory { get; set; }
 
-        [Option("filter", HelpText = "Filename filter; filenames that match this string will be merged. *.mzid and *.mzid.gz are added if an extension is not present. (Default: All files ending in .mzid or .mzid.gz).", HelpShowsDefault = false)]
+        [Option("filter", HelpText = "Filename filter; filenames that match this string will be merged. *.mzid and *.mzid.gz are added if an extension is not present. Use '*' for wildcard matches. (Default: All files ending in .mzid or .mzid.gz).", HelpShowsDefault = false)]
         public string NameFilter { get; set; }
 
         [Option("out", HelpText = "Filepath/filename of output file; if no path, input directory is used; by default will determine and use the common portion of the input file names.", HelpShowsDefault = false)]
