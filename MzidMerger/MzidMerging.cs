@@ -12,7 +12,7 @@ namespace MzidMerger
 {
     public class MzidMerging
     {
-        public static void MergeMzids(List<string> inputPaths, string outputPath, double maxSpecEValue = 100.0, ProgressData progData = null)
+        public static void MergeMzids(Options options, ProgressData progData = null)
         {
             if (progData == null)
             {
@@ -21,8 +21,8 @@ namespace MzidMerger
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
-            var targetFile = inputPaths.First();
-            var toMerge = inputPaths.Skip(1).ParallelPreprocess(x => new IdentDataObj(MzIdentMlReaderWriter.Read(x)), 1);
+            var targetFile = options.FilesToMerge.First();
+            var toMerge = options.FilesToMerge.Skip(1).ParallelPreprocess(x => new IdentDataObj(MzIdentMlReaderWriter.Read(x)), 1);
             var targetObj = new IdentDataObj(MzIdentMlReaderWriter.Read(targetFile));
 
             sw.Stop();
@@ -30,60 +30,26 @@ namespace MzidMerger
             sw.Restart();
 
             var merger = new MzidMerging(targetObj);
-            merger.MergeIdentData(toMerge, maxSpecEValue, true);
+            merger.MergeIdentData(toMerge, options.MaxSpecEValue, true);
 
             sw.Stop();
             Console.WriteLine("Mzid merge time: {0}", sw.Elapsed);
             sw.Restart();
 
-            MzIdentMlReaderWriter.Write(new MzIdentMLType(targetObj), outputPath);
+            MzIdentMlReaderWriter.Write(new MzIdentMLType(targetObj), options.OutputFilePath);
 
             sw.Stop();
             Console.WriteLine("Mzid write time: {0}", sw.Elapsed);
         }
 
-        public static void MergeMzidsOld(List<string> inputPaths, string outputPath, double maxSpecEValue = 100.0)
+        public static void MergeMzidsDivideAndConquer(Options options, ProgressData progData = null)
         {
-            var identObjs = new List<IdentDataObj>();
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            var objListLock = new object();
-            Parallel.ForEach(inputPaths, inputPath =>
+            if (progData == null)
             {
-                var data = new IdentDataObj(MzIdentMlReaderWriter.Read(inputPath));
-                lock (objListLock)
-                {
-                    identObjs.Add(data);
-                }
+                progData = new ProgressData();
+            }
 
-            });
-            //foreach (var inputPath in inputPaths)
-            //{
-            //    identObjs.Add(new IdentDataObj(MzIdentMlReaderWriter.Read(inputPath)));
-            //}
-
-            sw.Stop();
-            Console.WriteLine("Mzid Read time: {0}", sw.Elapsed);
-            sw.Restart();
-
-            var targetObj = identObjs.First();
-            identObjs.Remove(targetObj);
-
-            var merger = new MzidMerging(targetObj);
-            merger.MergeIdentData(identObjs, maxSpecEValue, true);
-
-            sw.Stop();
-            Console.WriteLine("Mzid merge time: {0}", sw.Elapsed);
-            sw.Restart();
-
-            MzIdentMlReaderWriter.Write(new MzIdentMLType(targetObj), outputPath);
-
-            sw.Stop();
-            Console.WriteLine("Mzid write time: {0}", sw.Elapsed);
-        }
-
-        public static void MergeMzidsDivideAndConquer(List<string> inputPaths, string outputPath, double maxSpecEValue = 100.0, int maxThreads = 200)
-        {
-            if (inputPaths.Count < 2)
+            if (options.FilesToMerge.Count < 2)
             {
                 return;
             }
@@ -91,8 +57,8 @@ namespace MzidMerger
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
             // Semaphore: initialCount, is the number initially available, maximumCount is the max allowed
-            var threadLimiter = new Semaphore(maxThreads, maxThreads);
-            var mergedData = DivideAndConquerMergeIdentData(inputPaths, threadLimiter, maxSpecEValue, true).targetIdentDataObj;
+            var threadLimiter = new Semaphore(options.MaxThreads, options.MaxThreads);
+            var mergedData = DivideAndConquerMergeIdentData(options.FilesToMerge, threadLimiter, options.MaxSpecEValue, true).targetIdentDataObj;
 
             sw.Stop();
             Console.WriteLine("Mzid read time: {0}", readTime);
@@ -101,7 +67,7 @@ namespace MzidMerger
             Console.WriteLine("Mzid read and merge time: {0}", sw.Elapsed);
             sw.Restart();
 
-            MzIdentMlReaderWriter.Write(new MzIdentMLType(mergedData), outputPath);
+            MzIdentMlReaderWriter.Write(new MzIdentMLType(mergedData), options.OutputFilePath);
 
             sw.Stop();
             Console.WriteLine("Mzid write time: {0}", sw.Elapsed);

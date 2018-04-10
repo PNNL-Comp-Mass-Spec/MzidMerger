@@ -43,7 +43,13 @@ namespace MzidMergeTests
             var output = @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus.mzid.gz";
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            MzidMerging.MergeMzids(inputs, output, 100.0);
+            var options = new Options()
+            {
+                OutputFilePath = output,
+                MaxSpecEValue = 100,
+            };
+            options.FilesToMerge.AddRange(inputs);
+            MzidMerging.MergeMzids(options);
             sw.Stop();
             Console.WriteLine("Total processing time: {0}", sw.Elapsed);
             /*
@@ -89,7 +95,14 @@ namespace MzidMergeTests
             var output = @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_dc.mzid.gz";
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            MzidMerging.MergeMzidsDivideAndConquer(inputs, output, 100.0, 6);
+            var options = new Options()
+            {
+                OutputFilePath = output,
+                MaxSpecEValue = 100,
+                MaxThreads = 6,
+            };
+            options.FilesToMerge.AddRange(inputs);
+            MzidMerging.MergeMzidsDivideAndConquer(options);
             sw.Stop();
             Console.WriteLine("Total processing time: {0}", sw.Elapsed);
         }
@@ -128,7 +141,13 @@ namespace MzidMergeTests
             var output = @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter.mzid.gz";
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            MzidMerging.MergeMzids(inputs, output, 1e-10);
+            var options = new Options()
+            {
+                OutputFilePath = output,
+                MaxSpecEValue = 1e-10,
+            };
+            options.FilesToMerge.AddRange(inputs);
+            MzidMerging.MergeMzids(options);
             sw.Stop();
             Console.WriteLine("Total processing time: {0}", sw.Elapsed);
         }
@@ -168,7 +187,14 @@ namespace MzidMergeTests
             var output = @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter_dc.mzid.gz";
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            MzidMerging.MergeMzidsDivideAndConquer(inputs, output, 1e-10, 60);
+            var options = new Options()
+            {
+                OutputFilePath = output,
+                MaxSpecEValue = 100,
+                MaxThreads = 6,
+            };
+            options.FilesToMerge.AddRange(inputs);
+            MzidMerging.MergeMzidsDivideAndConquer(options);
             sw.Stop();
             Console.WriteLine("Total processing time: {0}", sw.Elapsed);
         }

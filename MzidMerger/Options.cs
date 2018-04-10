@@ -24,6 +24,12 @@ namespace MzidMerger
         [Option("keepOnlyBestResults", HelpText = "If specified, only the best-scoring results for each spectrum are kept.")]
         public bool KeepOnlyBestResults { get; set; }
 
+        [Option("highmem", Hidden = true, HelpText = "If specified, extra-high resource usage will be allowed, for a minor runtime advantage.")]
+        public bool AllowHighResourceUsage { get; set; }
+
+        [Option("threads", Hidden = true, HelpText = "Max number of threads to use.")]
+        public int MaxThreads { get; set; }
+
         public List<string> FilesToMerge { get; } = new List<string>();
 
         public Options()
@@ -32,6 +38,8 @@ namespace MzidMerger
             NameFilter = "";
             MaxSpecEValue = 100;
             KeepOnlyBestResults = false;
+            AllowHighResourceUsage = false;
+            MaxThreads = GetOptimalMaxThreads();
         }
 
         public bool Validate()
@@ -45,6 +53,23 @@ namespace MzidMerger
 
 
             return false;
+        }
+
+        private int GetOptimalMaxThreads()
+        {
+            var cores = SystemInfo.GetCoreCount();
+            var threads = SystemInfo.GetLogicalCoreCount();
+            if (cores == threads)
+            {
+                return cores - 1;
+            }
+
+            if (cores > 4)
+            {
+                return threads - 2;
+            }
+
+            return threads - 1;
         }
     }
 }
