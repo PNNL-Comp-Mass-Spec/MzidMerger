@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using PRISM;
 using PSI_Interface.IdentData;
 using PSI_Interface.IdentData.IdentDataObjs;
 using PSI_Interface.IdentData.mzIdentML;
@@ -11,8 +12,13 @@ namespace MzidMerger
 {
     public class MzidMerging
     {
-        public static void MergeMzids(List<string> inputPaths, string outputPath, double maxSpecEValue = 100.0)
+        public static void MergeMzids(List<string> inputPaths, string outputPath, double maxSpecEValue = 100.0, ProgressData progData = null)
         {
+            if (progData == null)
+            {
+                progData = new ProgressData();
+            }
+
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
             var targetFile = inputPaths.First();
@@ -130,8 +136,13 @@ namespace MzidMerger
 
         private readonly IdentDataObj targetIdentDataObj;
 
-        private static MzidMerging DivideAndConquerMergeIdentData(List<string> filePaths, Semaphore threadLimiter, double maxSpecEValue = 100.0, bool finalize = false)
+        private static MzidMerging DivideAndConquerMergeIdentData(List<string> filePaths, Semaphore threadLimiter, double maxSpecEValue = 100.0, bool finalize = false, ProgressData progData = null)
         {
+            if (progData == null)
+            {
+                progData = new ProgressData();
+            }
+
             if (filePaths.Count >= 2)
             {
 
@@ -207,8 +218,13 @@ namespace MzidMerger
             return null;
         }
 
-        private void MergeIdentData(IEnumerable<IdentDataObj> toMerge, double maxSpecEValue = 100.0, bool remapPostMerge = false)
+        private void MergeIdentData(IEnumerable<IdentDataObj> toMerge, double maxSpecEValue = 100.0, bool remapPostMerge = false, ProgressData progData = null)
         {
+            if (progData == null)
+            {
+                progData = new ProgressData();
+            }
+
             var sw = new System.Diagnostics.Stopwatch();
             var mergedCount = 1;
             foreach (var mergeObj in toMerge)

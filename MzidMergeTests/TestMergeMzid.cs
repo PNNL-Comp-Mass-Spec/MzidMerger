@@ -125,18 +125,12 @@ namespace MzidMergeTests
                 @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part25.mzid.gz",
             };
 
-            var output = @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus.mzid.gz";
+            var output = @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter.mzid.gz";
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
             MzidMerging.MergeMzids(inputs, output, 1e-10);
             sw.Stop();
             Console.WriteLine("Total processing time: {0}", sw.Elapsed);
-            /*
-             * Mzid Read time: 00:58:57.4200490
-             * Mzid merge time: 04:28:21.6242130
-             * Mzid write time: 00:01:39.8106994
-             * Total processing time: 05:28:58.8590444
-             */
         }
 
         [Test]
@@ -171,10 +165,10 @@ namespace MzidMergeTests
                 @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part25.mzid.gz",
             };
 
-            var output = @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_dc.mzid.gz";
+            var output = @"E:\Mzid_merge\New_test\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter_dc.mzid.gz";
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            MzidMerging.MergeMzidsDivideAndConquer(inputs, output, 1e-10, 6);
+            MzidMerging.MergeMzidsDivideAndConquer(inputs, output, 1e-10, 60);
             sw.Stop();
             Console.WriteLine("Total processing time: {0}", sw.Elapsed);
         }
