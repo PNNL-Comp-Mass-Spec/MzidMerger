@@ -1,7 +1,7 @@
 # MzidMerger
 
 ## Overview
-Merges multiple .mzid file created by MS-GF+ into a single mzid file.
+Merges multiple .mzid files created by MS-GF+ into a single mzid file.
 
 This is primarily designed for "split-fasta" MS-GF+ searches, where a large protein database was split into multiple .fasta files, and then each one used to search a single spectra file.
 
@@ -9,7 +9,7 @@ This is primarily designed for "split-fasta" MS-GF+ searches, where a large prot
 
 MzidMerger reads in the mzids from MS-GF+ and creates a new mzid file using the contents of the input mzid files
 
-MzidMerger uses PSI_Interface.dll to read the mzid file.
+MzidMerger uses PSI_Interface.dll for reading and writing the mzids.
 
 ## Syntax
 
