@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PRISM;
 
 namespace MzidMerger
@@ -12,7 +11,7 @@ namespace MzidMerger
         [Option("inDir", ArgPosition = 1, Required = true, HelpText = "Path to directory containing mzid files to be merged.", HelpShowsDefault = false)]
         public string InputDirectory { get; set; }
 
-        [Option("filter", HelpText = "Filename filter; filenames that match this string will be merged. *.mzid and *.mzid.gz are added if an extension is not present. Use '*' for wildcard matches. (Default: All files ending in .mzid or .mzid.gz).", HelpShowsDefault = false)]
+        [Option("filter", HelpText = "Filename filter; filenames that match this string will be merged. *.mzid and *.mzid.gz are appended if neither ends the filter string. Use '*' for wildcard matches. (Default: All files ending in .mzid or .mzid.gz).", HelpShowsDefault = false)]
         public string NameFilter { get; set; }
 
         [Option("out", HelpText = "Filepath/filename of output file; if no path, input directory is used; by default will determine and use the common portion of the input file names.", HelpShowsDefault = false)]
@@ -50,9 +49,130 @@ namespace MzidMerger
                 return false;
             }
 
+            if (!Directory.Exists(InputDirectory))
+            {
+                Console.WriteLine("ERROR: Input path is not a Directory!");
+                return false;
+            }
 
+            if (!NameFilter.ToLower().EndsWith(".mzid") && !NameFilter.ToLower().EndsWith(".mzid.gz"))
+            {
+                FilesToMerge.AddRange(Directory.EnumerateFiles(InputDirectory, NameFilter + "*.mzid"));
+                FilesToMerge.AddRange(Directory.EnumerateFiles(InputDirectory, NameFilter + "*.mzid.gz"));
+                if (FilesToMerge.Count < 2)
+                {
+                    Console.WriteLine("ERROR: Not enough files in directory \"{0}\" that matched filter \"{1}\" or \"{2}\": found {3} files.", InputDirectory, NameFilter + "*.mzid", NameFilter + "*.mzid.gz", FilesToMerge.Count);
+                    return false;
+                }
+            }
+            else
+            {
+                FilesToMerge.AddRange(Directory.EnumerateFiles(InputDirectory, NameFilter));
+                if (FilesToMerge.Count < 2)
+                {
+                    Console.WriteLine("ERROR: Not enough files in directory \"{0}\" that matched filter \"{1}\": found {2} files.", InputDirectory, NameFilter, FilesToMerge.Count);
+                    return false;
+                }
+            }
 
-            return false;
+            if (string.IsNullOrWhiteSpace(OutputFilePath))
+            {
+                OutputFilePath = GetOutputNameStart(FilesToMerge) + GetOutputNameEnd(FilesToMerge);
+            }
+            else
+            {
+                if (OutputFilePath.Equals(Path.GetFileName(OutputFilePath)))
+                {
+                    OutputFilePath = Path.Combine(InputDirectory, OutputFilePath);
+                }
+
+                if (!OutputFilePath.ToLower().EndsWith(".mzid") && !OutputFilePath.ToLower().EndsWith(".mzid.gz"))
+                {
+                    OutputFilePath += ".mzid";
+                }
+
+                var dirName = Path.GetDirectoryName(OutputFilePath);
+                if (!string.IsNullOrWhiteSpace(dirName) && !Directory.Exists(dirName))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(dirName);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("ERROR: Could not create directory for output file: \"{0}\"", dirName);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public void ReportSettings()
+        {
+            Console.WriteLine("Input files: (count: {0})", FilesToMerge.Count);
+            foreach (var file in FilesToMerge)
+            {
+                Console.WriteLine("\t\"{0}\"", file);
+            }
+            Console.WriteLine("Output file: \"{0}\"", OutputFilePath);
+            Console.WriteLine("Max SpecEValue: {0}", StringUtilities.DblToString(MaxSpecEValue, 2));
+            Console.WriteLine("KeepOnlyBestResults: {0}", KeepOnlyBestResults.ToString());
+        }
+
+        public static string GetOutputNameStart(List<string> input)
+        {
+            var identical = GetLeftIdentical(input);
+            if (identical.ToLower().EndsWith("_part"))
+            {
+                identical = identical.Substring(0, identical.Length - 5);
+            }
+
+            return identical.TrimEnd('-', '_');
+        }
+
+        public static string GetOutputNameEnd(List<string> input)
+        {
+            var identical = GetRightIdentical(input);
+            if (string.IsNullOrWhiteSpace(identical))
+            {
+                identical = ".mzid";
+            }
+
+            return identical;
+        }
+
+        public static string GetRightIdentical(List<string> input)
+        {
+            return Reverse(GetLeftIdentical(input.Select(Reverse).ToList()));
+        }
+
+        private static string Reverse(string s)
+        {
+            //https://stackoverflow.com/questions/228038/best-way-to-reverse-a-string
+            // Note: won't handle UTF-32 (no surprise) or UTF-16 combining characters (may be a surprise) properly
+            var charArray = s.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
+        }
+
+        public static string GetLeftIdentical(List<string> input)
+        {
+            if (input.Count == 0)
+            {
+                return "";
+            }
+
+            if (input.Count == 1)
+            {
+                return input[0];
+            }
+
+            // https://stackoverflow.com/questions/30979119/get-equal-part-of-multiple-strings-at-the-beginning
+            var first = input[0];
+            var rest = input.GetRange(1, input.Count - 1);
+            return new string(first.TakeWhile((c, index) => rest.All(s => s[index] == c)).ToArray());
         }
 
         private int GetOptimalMaxThreads()

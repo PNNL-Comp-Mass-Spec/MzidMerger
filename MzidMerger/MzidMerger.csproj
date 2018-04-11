@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PRISM-Library" Version="2.4.83" />
+    <PackageReference Include="PRISM-Library" Version="2.4.84" />
     <PackageReference Include="PSI_Interface" Version="1.3.12" />
   </ItemGroup>
 

@@ -12,43 +12,78 @@ namespace MzidMerger
 {
     public class MzidMerging
     {
-        public static void MergeMzids(Options options, ProgressData progData = null)
+        public static void MergeMzids(Options options)
         {
-            if (progData == null)
-            {
-                progData = new ProgressData();
-            }
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-
             var targetFile = options.FilesToMerge.First();
             var toMerge = options.FilesToMerge.Skip(1).ParallelPreprocess(x => new IdentDataObj(MzIdentMlReaderWriter.Read(x)), 1);
             var targetObj = new IdentDataObj(MzIdentMlReaderWriter.Read(targetFile));
 
-            sw.Stop();
-            Console.WriteLine("Mzid Read time: {0}", sw.Elapsed);
-            sw.Restart();
+            Console.WriteLine("Read merge target file...");
 
             var merger = new MzidMerging(targetObj);
-            merger.MergeIdentData(toMerge, options.MaxSpecEValue, true);
+            merger.MergeIdentData(toMerge, options.MaxSpecEValue, options.KeepOnlyBestResults, true);
 
-            sw.Stop();
-            Console.WriteLine("Mzid merge time: {0}", sw.Elapsed);
-            sw.Restart();
+            Console.WriteLine("Writing merged file...");
 
             MzIdentMlReaderWriter.Write(new MzIdentMLType(targetObj), options.OutputFilePath);
-
-            sw.Stop();
-            Console.WriteLine("Mzid write time: {0}", sw.Elapsed);
         }
 
-        public static void MergeMzidsDivideAndConquer(Options options, ProgressData progData = null)
+        private void MergeIdentData(IEnumerable<IdentDataObj> toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool remapPostMerge)
         {
-            if (progData == null)
+            var mergedCount = 1;
+            foreach (var mergeObj in toMerge)
             {
-                progData = new ProgressData();
+                Console.Write("\rMerging file {0}...                                 ", mergedCount);
+                MergeIdentData(mergeObj, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
+                mergedCount++;
+            }
+            Console.WriteLine();
+
+            if (remapPostMerge)
+            {
+                Console.WriteLine("Repopulating the sequence collection and fixing IDs...");
+                FilterAndRepopulateSequenceCollection(maxSpecEValue, keepOnlyBestResult);
             }
 
+            Console.WriteLine("File merge complete.");
+
+            // Final TODO: rewrite all of the IDs, to ensure uniqueness
+        }
+
+        /// <summary>
+        /// merge 2 files
+        /// </summary>
+        /// <param name="toMerge"></param>
+        /// <param name="maxSpecEValue"></param>
+        /// <param name="keepOnlyBestResult">if true, only the best-specEValue result(s) will be kept for each spectrum</param>
+        /// <param name="remapPostMerge">if true, the items under SequenceCollection are not merged (to be repopulated as a last step)</param>
+        private void MergeIdentData(IdentDataObj toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool remapPostMerge)
+        {
+            Merge(targetIdentDataObj.CVList, toMerge.CVList);
+            Merge(targetIdentDataObj.AnalysisSoftwareList, toMerge.AnalysisSoftwareList);
+            Merge(targetIdentDataObj.Provider, toMerge.Provider);
+            Merge(targetIdentDataObj.AuditCollection, toMerge.AuditCollection);
+            Merge(targetIdentDataObj.AnalysisSampleCollection, toMerge.AnalysisSampleCollection);
+            Merge(targetIdentDataObj.SequenceCollection, toMerge.SequenceCollection, remapPostMerge);
+            Merge(targetIdentDataObj.AnalysisCollection, toMerge.AnalysisCollection);
+            Merge(targetIdentDataObj.AnalysisProtocolCollection, toMerge.AnalysisProtocolCollection);
+            Merge(targetIdentDataObj.DataCollection, toMerge.DataCollection, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
+            Merge(targetIdentDataObj.BibliographicReferences, toMerge.BibliographicReferences);
+
+            // Final TODO: rewrite all of the IDs, to ensure uniqueness
+        }
+
+        private MzidMerging(IdentDataObj target)
+        {
+            targetIdentDataObj = target;
+        }
+
+        private readonly IdentDataObj targetIdentDataObj;
+
+        #region Divide-And-Conquer merge (uses high resources)
+
+        public static void MergeMzidsDivideAndConquer(Options options)
+        {
             if (options.FilesToMerge.Count < 2)
             {
                 return;
@@ -58,7 +93,7 @@ namespace MzidMerger
 
             // Semaphore: initialCount, is the number initially available, maximumCount is the max allowed
             var threadLimiter = new Semaphore(options.MaxThreads, options.MaxThreads);
-            var mergedData = DivideAndConquerMergeIdentData(options.FilesToMerge, threadLimiter, options.MaxSpecEValue, true).targetIdentDataObj;
+            var mergedData = DivideAndConquerMergeIdentData(options.FilesToMerge, threadLimiter, options.MaxSpecEValue, options.KeepOnlyBestResults, true).targetIdentDataObj;
 
             sw.Stop();
             Console.WriteLine("Mzid read time: {0}", readTime);
@@ -71,11 +106,6 @@ namespace MzidMerger
 
             sw.Stop();
             Console.WriteLine("Mzid write time: {0}", sw.Elapsed);
-        }
-
-        private MzidMerging(IdentDataObj target)
-        {
-            targetIdentDataObj = target;
         }
 
         private static TimeSpan readTime = TimeSpan.Zero;
@@ -100,15 +130,8 @@ namespace MzidMerger
             }
         }
 
-        private readonly IdentDataObj targetIdentDataObj;
-
-        private static MzidMerging DivideAndConquerMergeIdentData(List<string> filePaths, Semaphore threadLimiter, double maxSpecEValue = 100.0, bool finalize = false, ProgressData progData = null)
+        private static MzidMerging DivideAndConquerMergeIdentData(List<string> filePaths, Semaphore threadLimiter, double maxSpecEValue, bool keepOnlyBestResult, bool finalize)
         {
-            if (progData == null)
-            {
-                progData = new ProgressData();
-            }
-
             if (filePaths.Count >= 2)
             {
 
@@ -118,8 +141,8 @@ namespace MzidMerger
 
                 /**/
                 // run in parallel
-                var merged1Task = Task.Run(() => DivideAndConquerMergeIdentData(firstHalf, threadLimiter, maxSpecEValue, false));
-                var merged2Task = Task.Run(() => DivideAndConquerMergeIdentData(secondHalf, threadLimiter, maxSpecEValue, false));
+                var merged1Task = Task.Run(() => DivideAndConquerMergeIdentData(firstHalf, threadLimiter, maxSpecEValue, keepOnlyBestResult, false));
+                var merged2Task = Task.Run(() => DivideAndConquerMergeIdentData(secondHalf, threadLimiter, maxSpecEValue, keepOnlyBestResult, false));
 
                 // wait for them to complete
                 Task.WaitAll(merged1Task, merged2Task);
@@ -137,7 +160,7 @@ namespace MzidMerger
                 // merge the results
 
                 threadLimiter.WaitOne();
-                merged1.MergeIdentData(merged2Data, maxSpecEValue, true);
+                merged1.MergeIdentData(merged2Data, maxSpecEValue, keepOnlyBestResult, true);
                 threadLimiter.Release();
                 sw.Stop();
 
@@ -151,19 +174,7 @@ namespace MzidMerger
                 {
                     sw.Restart();
                     // repopulate the DBSequence/Peptide/PeptideEvidence lists
-                    merged1.FilterAndRepopulateSequenceCollection(maxSpecEValue);
-
-                    //// fix ids... DONE by the above function...
-                    //foreach (var dbseq in merged1.targetIdentDataObj.SequenceCollection.DBSequences)
-                    //{
-                    //    var sdbId = dbseq.SearchDatabase.Id;
-                    //    if (sdbId.StartsWith("SearchDB_"))
-                    //    {
-                    //        sdbId = sdbId.Replace("SearchDB_", "sdb");
-                    //    }
-                    //
-                    //    dbseq.Id = $"{dbseq.Id}_{sdbId}";
-                    //}
+                    merged1.FilterAndRepopulateSequenceCollection(maxSpecEValue, keepOnlyBestResult);
 
                     sw.Stop();
                     Console.WriteLine("Time to repopulate sequence collection: {0}", sw.Elapsed);
@@ -182,56 +193,6 @@ namespace MzidMerger
 
             // Shouldn't encounter this, unless we are doing bad math above, or had bad original input
             return null;
-        }
-
-        private void MergeIdentData(IEnumerable<IdentDataObj> toMerge, double maxSpecEValue = 100.0, bool remapPostMerge = false, ProgressData progData = null)
-        {
-            if (progData == null)
-            {
-                progData = new ProgressData();
-            }
-
-            var sw = new System.Diagnostics.Stopwatch();
-            var mergedCount = 1;
-            foreach (var mergeObj in toMerge)
-            {
-                sw.Restart();
-                MergeIdentData(mergeObj, maxSpecEValue, remapPostMerge);
-                sw.Stop();
-                Console.WriteLine("Time to merge 1 file into {0}{1} files: {2}", mergedCount, mergedCount > 1 ? " merged" : "", sw.Elapsed);
-            }
-
-            if (remapPostMerge)
-            {
-                sw.Restart();
-                FilterAndRepopulateSequenceCollection(maxSpecEValue);
-                sw.Stop();
-                Console.WriteLine("Time to repopulate sequence collection: {0}", sw.Elapsed);
-            }
-
-            // Final TODO: rewrite all of the IDs, to ensure uniqueness
-        }
-
-        /// <summary>
-        /// merge 2 files
-        /// </summary>
-        /// <param name="toMerge"></param>
-        /// <param name="maxSpecEValue"></param>
-        /// <param name="remapPostMerge">if true, the items under SequenceCollection are not merged (to be repopulated as a last step)</param>
-        private void MergeIdentData(IdentDataObj toMerge, double maxSpecEValue = 100.0, bool remapPostMerge = false)
-        {
-            Merge(targetIdentDataObj.CVList, toMerge.CVList);
-            Merge(targetIdentDataObj.AnalysisSoftwareList, toMerge.AnalysisSoftwareList);
-            Merge(targetIdentDataObj.Provider, toMerge.Provider);
-            Merge(targetIdentDataObj.AuditCollection, toMerge.AuditCollection);
-            Merge(targetIdentDataObj.AnalysisSampleCollection, toMerge.AnalysisSampleCollection);
-            Merge(targetIdentDataObj.SequenceCollection, toMerge.SequenceCollection, remapPostMerge);
-            Merge(targetIdentDataObj.AnalysisCollection, toMerge.AnalysisCollection);
-            Merge(targetIdentDataObj.AnalysisProtocolCollection, toMerge.AnalysisProtocolCollection);
-            Merge(targetIdentDataObj.DataCollection, toMerge.DataCollection, maxSpecEValue, remapPostMerge);
-            Merge(targetIdentDataObj.BibliographicReferences, toMerge.BibliographicReferences);
-
-            // Final TODO: rewrite all of the IDs, to ensure uniqueness
         }
 
         private void DropDictionaries()
@@ -255,7 +216,11 @@ namespace MzidMerger
             }
         }
 
-        private void FilterAndRepopulateSequenceCollection(double maxSpecEValue = 100.0)
+        #endregion
+
+        #region Final Processing: repopulate sequence collection and fix IDs
+
+        private void FilterAndRepopulateSequenceCollection(double maxSpecEValue = 100.0, bool keepOnlyBestResult = false)
         {
             var dbSeqList = targetIdentDataObj.SequenceCollection.DBSequences;
             var pepList = targetIdentDataObj.SequenceCollection.Peptides;
@@ -407,6 +372,8 @@ namespace MzidMerger
             }
         }
 
+        #endregion
+
         #region Base-level elements
 
         private void Merge(IdentDataList<CVInfo> target, IdentDataList<CVInfo> toMerge)
@@ -521,7 +488,7 @@ namespace MzidMerger
             // Merge(target.ProteinDetectionProtocol, toMerge.ProteinDetectionProtocol); // TODO: not used by MS-GF+
         }
 
-        private void Merge(DataCollectionObj target, DataCollectionObj toMerge, double maxSpecEValue = 100.0, bool remapPostMerge = false)
+        private void Merge(DataCollectionObj target, DataCollectionObj toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool remapPostMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -529,7 +496,7 @@ namespace MzidMerger
             }
 
             Merge(target.Inputs, toMerge.Inputs);
-            Merge(target.AnalysisData, toMerge.AnalysisData, maxSpecEValue, remapPostMerge);
+            Merge(target.AnalysisData, toMerge.AnalysisData, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
         }
 
         private void Merge(IdentDataList<BibliographicReferenceObj> target, IdentDataList<BibliographicReferenceObj> toMerge)
@@ -890,7 +857,7 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(AnalysisDataObj target, AnalysisDataObj toMerge, double maxSpecEValue = 100.0, bool remapPostMerge = false)
+        private void Merge(AnalysisDataObj target, AnalysisDataObj toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool remapPostMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -898,10 +865,10 @@ namespace MzidMerger
             }
 
             //Merge(target.ProteinDetectionList, toMerge.ProteinDetectionList); // TODO: Not used by MS-GF+
-            Merge(target.SpectrumIdentificationList, toMerge.SpectrumIdentificationList, maxSpecEValue, remapPostMerge);
+            Merge(target.SpectrumIdentificationList, toMerge.SpectrumIdentificationList, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
         }
 
-        private void Merge(IdentDataList<SpectrumIdentificationListObj> target, IdentDataList<SpectrumIdentificationListObj> toMerge, double maxSpecEValue = 100.0, bool remapPostMerge = false)
+        private void Merge(IdentDataList<SpectrumIdentificationListObj> target, IdentDataList<SpectrumIdentificationListObj> toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool remapPostMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -912,11 +879,11 @@ namespace MzidMerger
             var targetSpecList = target.First();
             foreach (var item in toMerge)
             {
-                Merge(targetSpecList, item, maxSpecEValue, remapPostMerge);
+                Merge(targetSpecList, item, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
             }
         }
 
-        private void Merge(SpectrumIdentificationListObj target, SpectrumIdentificationListObj toMerge, double maxSpecEValue = 100.0, bool remapPostMerge = false)
+        private void Merge(SpectrumIdentificationListObj target, SpectrumIdentificationListObj toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool remapPostMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -924,7 +891,7 @@ namespace MzidMerger
             }
 
             Merge(target.FragmentationTables, toMerge.FragmentationTables);
-            Merge(target.SpectrumIdentificationResults, toMerge.SpectrumIdentificationResults, maxSpecEValue, remapPostMerge);
+            Merge(target.SpectrumIdentificationResults, toMerge.SpectrumIdentificationResults, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
             // Merge(target.CVParams, toMerge.CVParams);        // TODO: Not used by MS-GF+
             // Merge(target.UserParams, toMerge.UserParams);    // TODO: Not used by MS-GF+
             toMerge.Id = target.Id;
@@ -963,7 +930,7 @@ namespace MzidMerger
             return $"{spectraDataName}_{spectrumId}";
         }
 
-        private void Merge(IdentDataList<SpectrumIdentificationResultObj> target, IdentDataList<SpectrumIdentificationResultObj> toMerge, double maxSpecEValue = 100.0, bool cleanupPostMerge = false)
+        private void Merge(IdentDataList<SpectrumIdentificationResultObj> target, IdentDataList<SpectrumIdentificationResultObj> toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool cleanupPostMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1006,7 +973,7 @@ namespace MzidMerger
                 var lookupName = CreateSpectrumResultLookupName(item.SpectraData.Name, item.SpectrumID);
                 if (spectrumResultLookupByFilenameAndSpecId.TryGetValue(lookupName, out var existing))
                 {
-                    Merge(existing, item, maxSpecEValue, cleanupPostMerge);
+                    Merge(existing, item, maxSpecEValue, keepOnlyBestResult, cleanupPostMerge);
                     continue;
                 }
 
@@ -1029,7 +996,7 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(SpectrumIdentificationResultObj target, SpectrumIdentificationResultObj toMerge, double maxSpecEValue = 100.0, bool cleanupPostMerge = false)
+        private void Merge(SpectrumIdentificationResultObj target, SpectrumIdentificationResultObj toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool cleanupPostMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1043,10 +1010,16 @@ namespace MzidMerger
             {
                 // sort by score, update rank and id
                 target.ReRankBySpecEValue();
+                if (keepOnlyBestResult)
+                {
+                    target.RemoveMatchesNotBestSpecEValue();
+                }
             }
         }
 
         #endregion
+
+        #region Unimplemented...
 
         private void Merge(ProteinDetectionListObj target, ProteinDetectionListObj toMerge)
         {
@@ -1160,5 +1133,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
         */
+
+        #endregion
     }
 }

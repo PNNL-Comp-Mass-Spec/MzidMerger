@@ -21,7 +21,7 @@ MzidMerger uses PSI_Interface.dll to read the mzid file.
 
 ### Optional parameters:
 `-filter:abc*.mzid`
-* Filename filter; filenames that match this string will be merged. *.mzid and *.mzid.gz are added if an extension is not present. Use '*' for wildcard matches. (Default: All files ending in .mzid or .mzid.gz).
+* Filename filter; filenames that match this string will be merged. *.mzid and *.mzid.gz are appended if neither ends the filter string. Use '*' for wildcard matches. (Default: All files ending in .mzid or .mzid.gz).
 
 `-out`
 * Filepath/filename of output file; if no path, input directory is used; by default will determine and use the common portion of the input file names.
