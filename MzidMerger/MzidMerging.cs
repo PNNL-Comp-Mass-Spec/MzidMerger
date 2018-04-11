@@ -14,11 +14,12 @@ namespace MzidMerger
     {
         public static void MergeMzids(Options options)
         {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var targetFile = options.FilesToMerge.First();
-            var toMerge = options.FilesToMerge.Skip(1).ParallelPreprocess(x => new IdentDataObj(MzIdentMlReaderWriter.Read(x)), 1);
-            var targetObj = new IdentDataObj(MzIdentMlReaderWriter.Read(targetFile));
+            var toMerge = options.FilesToMerge.Skip(1).ParallelPreprocess(x => new IdentDataObj(MzIdentMlReaderWriter.Read(x)), 2);
 
-            Console.WriteLine("Read merge target file...");
+            Console.WriteLine("Reading first file (the merge target)...");
+            var targetObj = new IdentDataObj(MzIdentMlReaderWriter.Read(targetFile));
 
             var merger = new MzidMerging(targetObj);
             merger.MergeIdentData(toMerge, options.MaxSpecEValue, options.KeepOnlyBestResults, true);
@@ -26,11 +27,14 @@ namespace MzidMerger
             Console.WriteLine("Writing merged file...");
 
             MzIdentMlReaderWriter.Write(new MzIdentMLType(targetObj), options.OutputFilePath);
+
+            sw.Stop();
+            Console.WriteLine("Total time to merge {0} files: {1}", options.FilesToMerge.Count, sw.Elapsed);
         }
 
         private void MergeIdentData(IEnumerable<IdentDataObj> toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool remapPostMerge)
         {
-            var mergedCount = 1;
+            var mergedCount = 2; // start at 2, since we are merging into the first file.
             foreach (var mergeObj in toMerge)
             {
                 Console.Write("\rMerging file {0}...                                 ", mergedCount);
@@ -238,15 +242,6 @@ namespace MzidMerger
             //{
             var identList = targetIdentDataObj.DataCollection.AnalysisData.SpectrumIdentificationList.First();
 
-            // re-rank all of the spectrumIdentificationItems in each spectrumIdentification result
-            foreach (var specIdResult in identList.SpectrumIdentificationResults)
-            {
-                specIdResult.ReRankBySpecEValue();
-            }
-
-            // Re-sort the spectrumIdentificationResults in the spectrumIdentificationList, according to specEValue
-            identList.Sort();
-
             // ToList() to create a distinct list, and allow modification of the original
             foreach (var specIdResult in identList.SpectrumIdentificationResults.ToList())
             {
@@ -255,6 +250,15 @@ namespace MzidMerger
                     identList.SpectrumIdentificationResults.Remove(specIdResult);
                     continue;
                 }
+
+                if (keepOnlyBestResult)
+                {
+                    // remove all but the highest scoring result(s) for each spectrum
+                    specIdResult.RemoveMatchesNotBestSpecEValue();
+                }
+
+                // re-rank all of the spectrumIdentificationItems in each spectrumIdentification result
+                specIdResult.ReRankBySpecEValue();
 
                 // ToList() to create a distinct list, and allow modification of the original
                 foreach (var specIdItem in specIdResult.SpectrumIdentificationItems.ToList())
@@ -339,6 +343,9 @@ namespace MzidMerger
                     }
                 }
             }
+
+            // Re-sort the spectrumIdentificationResults in the spectrumIdentificationList, according to specEValue
+            identList.Sort();
             //}
 
             pepEvList.AddRange(pepEvLookup.Values);
@@ -1003,17 +1010,26 @@ namespace MzidMerger
                 return;
             }
 
+            var toMergeItems = toMerge.SpectrumIdentificationItems.Where(x => !(x.GetSpecEValue() > maxSpecEValue));
+            if (keepOnlyBestResult)
+            {
+                var bestSpecEValue = target.BestSpecEVal();
+                toMergeItems = toMergeItems.Where(x => x.GetSpecEValue() <= bestSpecEValue);
+            }
+
+            var prevCount = target.SpectrumIdentificationItems.Count;
             // Add all spectrum identification items
-            target.SpectrumIdentificationItems.AddRange(toMerge.SpectrumIdentificationItems.Where(x => !(x.GetSpecEValue() > maxSpecEValue)));
+            target.SpectrumIdentificationItems.AddRange(toMergeItems);
+
+            if (keepOnlyBestResult && prevCount < target.SpectrumIdentificationItems.Count)
+            {
+                target.RemoveMatchesNotBestSpecEValue();
+            }
 
             if (!cleanupPostMerge)
             {
                 // sort by score, update rank and id
                 target.ReRankBySpecEValue();
-                if (keepOnlyBestResult)
-                {
-                    target.RemoveMatchesNotBestSpecEValue();
-                }
             }
         }
 

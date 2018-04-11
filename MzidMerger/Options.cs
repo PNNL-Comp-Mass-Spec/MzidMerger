@@ -78,6 +78,12 @@ namespace MzidMerger
             if (string.IsNullOrWhiteSpace(OutputFilePath))
             {
                 OutputFilePath = GetOutputNameStart(FilesToMerge) + GetOutputNameEnd(FilesToMerge);
+
+                if (File.Exists(OutputFilePath))
+                {
+                    Console.WriteLine("ERROR: file already exists at the auto-determined output path \"{0}\"!", OutputFilePath);
+                    return false;
+                }
             }
             else
             {
