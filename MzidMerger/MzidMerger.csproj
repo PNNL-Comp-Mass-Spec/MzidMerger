@@ -6,7 +6,7 @@
     <RootNamespace>MzidMerger</RootNamespace>
     <AssemblyName>MzidMerger</AssemblyName>
     <PackageId>MzidMerger</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <Description>Merges mzid[.gz] files into a single mzid[.gz]. Designed for MS-GF+ mzid files (looks for SpecEValue scores)</Description>
