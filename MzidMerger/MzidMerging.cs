@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using PRISM;
+using PSI_Interface.CV;
 using PSI_Interface.IdentData;
 using PSI_Interface.IdentData.IdentDataObjs;
 using PSI_Interface.IdentData.mzIdentML;
@@ -16,13 +19,42 @@ namespace MzidMerger
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
             var targetFile = options.FilesToMerge.First();
-            var toMerge = options.FilesToMerge.Skip(1).ParallelPreprocess(x => new IdentDataObj(MzIdentMlReaderWriter.Read(x)), 2);
+            var toMerge = options.FilesToMerge.Skip(1).ParallelPreprocess(x => IdentDataReaderWriter.Read(x), 2);
 
             Console.WriteLine("Reading first file (the merge target)...");
-            var targetObj = new IdentDataObj(MzIdentMlReaderWriter.Read(targetFile));
+            var targetObj = IdentDataReaderWriter.Read(targetFile);
 
             var merger = new MzidMerging(targetObj);
             merger.MergeIdentData(toMerge, options.MaxSpecEValue, options.KeepOnlyBestResults, true);
+
+            // Add the merging information
+            var mergerSoftware = new AnalysisSoftwareObj()
+            {
+                Id = "MzidMerger_Id",
+                Name = "MzidMerger",
+                Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(),
+                SoftwareName = new ParamObj() { Item = new UserParamObj() { Name = "MzidMerger" } },
+            };
+            targetObj.AnalysisSoftwareList.Add(mergerSoftware);
+
+            targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols.First().AdditionalSearchParams.Items.Add(new UserParamObj() { Name = "Merger_KeepOnlyBestResults", Value = options.KeepOnlyBestResults.ToString() });
+            if (options.MaxSpecEValue < 50)
+            {
+                targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols.First().AdditionalSearchParams.Items.Add(new UserParamObj() { Name = "Merger_MaxSpecEValue", Value = options.MaxSpecEValue.ToString(CultureInfo.InvariantCulture) });
+            }
+
+            var count = 1;
+            foreach (var file in options.FilesToMerge)
+            {
+                var sourceFile = new SourceFileInfo()
+                {
+                    Id = $"MergedMzid_{count++}",
+                    Location = file,
+                    Name = Path.GetFileName(file),
+                    FileFormat = new FileFormatInfo() { CVParam = new CVParamObj(CV.CVID.MS_mzIdentML_format) },
+                };
+                targetObj.DataCollection.Inputs.SourceFiles.Add(sourceFile);
+            }
 
             Console.WriteLine("Writing merged file...");
 
