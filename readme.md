@@ -13,7 +13,7 @@ MzidMerger uses PSI_Interface.dll for reading and writing the mzids.
 
 ## Syntax
 
-`MzidMerger -inDir "directory path" [-filter "filename filter"] [-out "output file path"] [-maxSpecEValue number] [-keepOnlyBestResults]`
+`MzidMerger -inDir "directory path" [-filter "filename filter"] [-out "output file path"] [-maxSpecEValue number] [-keepOnlyBestResults] [-fixIds]`
 
 ### Required parameters:
 `-inDir path` 
@@ -31,6 +31,9 @@ MzidMerger uses PSI_Interface.dll for reading and writing the mzids.
 
 `-keepOnlyBestResults`
 * If specified, only the best-scoring results for each spectrum are kept.
+
+`-fixIds`
+* Fix the peptide and peptideEvidence IDs. Only use for e.g. older MS-GF+ results, that output many errors about duplicate IDs. Only fixes Peptide and PeptideEvidence IDs.
 
 ## Contacts
 
