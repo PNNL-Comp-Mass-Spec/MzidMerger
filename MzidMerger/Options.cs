@@ -29,6 +29,12 @@ namespace MzidMerger
         [Option("threads", Hidden = true, HelpText = "Max number of threads to use.")]
         public int MaxThreads { get; set; }
 
+        [Option("fixIds", HelpText = "Fix the peptide and peptideEvidence IDs. Only use for e.g. older MS-GF+ results, that output many errors about duplicate IDs. Only fixes Peptide and PeptideEvidence IDs.")]
+        public bool FixIDs { get; set; }
+
+        [Option("multithread", HelpText = "If supplied, program will attempt to decrease merge time by reading multiple files in parallel. Will also require more memory, and is more likely to crash.")]
+        public bool MultiThread { get; set; }
+
         public List<string> FilesToMerge { get; } = new List<string>();
 
         public Options()
@@ -39,6 +45,8 @@ namespace MzidMerger
             KeepOnlyBestResults = false;
             AllowHighResourceUsage = false;
             MaxThreads = GetOptimalMaxThreads();
+            FixIDs = false;
+            MultiThread = false;
         }
 
         public bool Validate()
@@ -184,6 +192,10 @@ namespace MzidMerger
         private int GetOptimalMaxThreads()
         {
             var cores = SystemInfo.GetCoreCount();
+            if (cores == -1)
+            {
+                Console.WriteLine("NOTE: Above error about the CPU info can be ignored.");
+            }
             var threads = SystemInfo.GetLogicalCoreCount();
             if (cores == threads)
             {

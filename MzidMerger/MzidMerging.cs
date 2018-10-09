@@ -19,10 +19,18 @@ namespace MzidMerger
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
             var targetFile = options.FilesToMerge.First();
-            var toMerge = options.FilesToMerge.Skip(1).ParallelPreprocess(x => IdentDataReaderWriter.Read(x), 2);
+            IEnumerable<IdentDataObj> toMerge = null;
+            if (!options.MultiThread)
+            {
+                toMerge = options.FilesToMerge.Skip(1).Select(x => ReadAndPreprocessFile(x, options));
+            }
+            else
+            {
+                toMerge = options.FilesToMerge.Skip(1).ParallelPreprocess(x => ReadAndPreprocessFile(x, options), 2);
+            }
 
             Console.WriteLine("Reading first file (the merge target)...");
-            var targetObj = IdentDataReaderWriter.Read(targetFile);
+            var targetObj = ReadAndPreprocessFile(targetFile, options);
 
             var merger = new MzidMerging(targetObj);
             merger.MergeIdentData(toMerge, options.MaxSpecEValue, options.KeepOnlyBestResults, true);
@@ -62,6 +70,116 @@ namespace MzidMerger
 
             sw.Stop();
             Console.WriteLine("Total time to merge {0} files: {1}", options.FilesToMerge.Count, sw.Elapsed);
+        }
+
+        private static IdentDataObj ReadAndPreprocessFile(string filePath, Options options)
+        {
+            var identData = IdentDataReaderWriter.Read(filePath);
+
+            if (options.FixIDs)
+            {
+                try
+                {
+                    //var pepDict = new Dictionary<string, PeptideObj>(); // TODO: Monitor for duplicates
+                    var mods = identData.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].ModificationParams.Where(x => x.FixedMod);
+                    var fixedModDict = new Dictionary<string, List<SearchModificationObj>>();
+                    foreach (var mod in mods)
+                    {
+                        var massStr = mod.MassDelta.ToString("F4");
+                        if (!fixedModDict.ContainsKey(massStr))
+                        {
+                            fixedModDict.Add(massStr, new List<SearchModificationObj>());
+                        }
+
+                        fixedModDict[massStr].Add(mod);
+                    }
+
+                    foreach (var peptide in identData.SequenceCollection.Peptides)
+                    {
+                        // Re-ID peptides...
+                        var seq = peptide.PeptideSequence;
+                        foreach (var mod in peptide.Modifications.OrderByDescending(x => x.Location).ThenByDescending(x => x.MonoisotopicMassDelta))
+                        {
+                            var isNTerm = false;
+                            var isCTerm = false;
+                            if (mod.Location == 0)
+                            {
+                                isNTerm = true;
+                            }
+
+                            if (mod.Location == 0 || mod.Location == peptide.PeptideSequence.Length + 1)
+                            {
+                                isCTerm = true;
+                            }
+
+                            var massStr = mod.MonoisotopicMassDelta.ToString("F4");
+                            // match to mass and residue (backward lookup from location)
+                            if (fixedModDict.TryGetValue(massStr, out var fixedMods))
+                            {
+                                var residue = "";
+                                if (isNTerm || isCTerm)
+                                {
+                                    residue = ".";
+                                }
+                                else
+                                {
+                                    residue = peptide.PeptideSequence[mod.Location - 1].ToString();
+                                }
+
+                                foreach (var fixedMod in fixedMods)
+                                {
+                                    // TODO: should also check specificity rules
+                                    if (fixedMod.Residues.Contains(residue))
+                                    {
+                                        continue;
+                                    }
+                                }
+                            }
+
+                            if (isNTerm)
+                            {
+                                seq = $"[{mod.MonoisotopicMassDelta:+F2}{seq}";
+                            }
+                            else if (isCTerm)
+                            {
+                                seq += $"}}{mod.MonoisotopicMassDelta:+F2}";
+                            }
+                            else
+                            {
+                                seq = $"{seq.Substring(0, mod.Location)}{mod.MonoisotopicMassDelta:+F2}{seq.Substring(mod.Location)}";
+                            }
+                        }
+
+                        peptide.Id = "Pep_" + seq;
+                    }
+                    //pepDict.Clear(); // TODO:
+
+                    // var pepEvDict = new Dictionary<string, PeptideEvidenceObj>(); // TODO: Monitor for duplicates
+                    foreach (var pepEv in identData.SequenceCollection.PeptideEvidences)
+                    {
+                        // Re-Id PeptideEvidences
+                        var dbseq = pepEv.DBSequence.Id;
+                        if (dbseq.StartsWith("DBSeq", StringComparison.OrdinalIgnoreCase))
+                        {
+                            dbseq = dbseq.Substring(5);
+                            if (int.TryParse(dbseq, out var offset))
+                            {
+                                dbseq = (offset + pepEv.Start - 1).ToString();
+                            }
+                        }
+
+                        var pepId = pepEv.Peptide.Id.Substring(4);
+
+                        pepEv.Id = $"PepEv_{dbseq}_{pepId}_{pepEv.Start}";
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+
+            return identData;
         }
 
         private void MergeIdentData(IEnumerable<IdentDataObj> toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool remapPostMerge)
@@ -129,7 +247,7 @@ namespace MzidMerger
 
             // Semaphore: initialCount, is the number initially available, maximumCount is the max allowed
             var threadLimiter = new Semaphore(options.MaxThreads, options.MaxThreads);
-            var mergedData = DivideAndConquerMergeIdentData(options.FilesToMerge, threadLimiter, options.MaxSpecEValue, options.KeepOnlyBestResults, true).targetIdentDataObj;
+            var mergedData = DivideAndConquerMergeIdentData(options.FilesToMerge, threadLimiter, options.MaxSpecEValue, options.KeepOnlyBestResults, true, options).targetIdentDataObj;
 
             sw.Stop();
             Console.WriteLine("Mzid read time: {0}", readTime);
@@ -150,23 +268,18 @@ namespace MzidMerger
         private static readonly object ReadTimeWriteLock = new object();
         private static readonly object MergeTimeWriteLock = new object();
 
-        private MzidMerging(string filePath)
+        private MzidMerging(string filePath, Options options)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var mzid = MzIdentMlReaderWriter.Read(filePath);
-            sw.Stop();
-            var myReadTime = sw.Elapsed;
-            sw.Restart();
-            targetIdentDataObj = new IdentDataObj(mzid);
+            targetIdentDataObj = ReadAndPreprocessFile(filePath, options);
             sw.Stop();
             lock (ReadTimeWriteLock)
             {
-                readTime += myReadTime;
-                readConvertTime += sw.Elapsed;
+                readTime += sw.Elapsed;
             }
         }
 
-        private static MzidMerging DivideAndConquerMergeIdentData(List<string> filePaths, Semaphore threadLimiter, double maxSpecEValue, bool keepOnlyBestResult, bool finalize)
+        private static MzidMerging DivideAndConquerMergeIdentData(List<string> filePaths, Semaphore threadLimiter, double maxSpecEValue, bool keepOnlyBestResult, bool finalize, Options options)
         {
             if (filePaths.Count >= 2)
             {
@@ -177,8 +290,8 @@ namespace MzidMerger
 
                 /**/
                 // run in parallel
-                var merged1Task = Task.Run(() => DivideAndConquerMergeIdentData(firstHalf, threadLimiter, maxSpecEValue, keepOnlyBestResult, false));
-                var merged2Task = Task.Run(() => DivideAndConquerMergeIdentData(secondHalf, threadLimiter, maxSpecEValue, keepOnlyBestResult, false));
+                var merged1Task = Task.Run(() => DivideAndConquerMergeIdentData(firstHalf, threadLimiter, maxSpecEValue, keepOnlyBestResult, false, options));
+                var merged2Task = Task.Run(() => DivideAndConquerMergeIdentData(secondHalf, threadLimiter, maxSpecEValue, keepOnlyBestResult, false, options));
 
                 // wait for them to complete
                 Task.WaitAll(merged1Task, merged2Task);
@@ -222,7 +335,7 @@ namespace MzidMerger
             if (filePaths.Count == 1)
             {
                 threadLimiter.WaitOne();
-                var merger = new MzidMerging(filePaths[0]);
+                var merger = new MzidMerging(filePaths[0], options);
                 threadLimiter.Release();
                 return merger;
             }
