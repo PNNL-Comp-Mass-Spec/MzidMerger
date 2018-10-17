@@ -56,7 +56,8 @@ namespace MzidMergeTests
         }
 
         [Test]
-        public void MergeRecentMzidsDivideConquer()
+        [Ignore("Resource intensive; uses over 15 GB of memory")]
+        public void MergeMzidsDivideConquer()
         {
             var inputs = new List<string>
             {
@@ -101,6 +102,7 @@ namespace MzidMergeTests
             stopWatch.Stop();
             Console.WriteLine("Total processing time: {0:g}", stopWatch.Elapsed);
         }
+
         [Test]
         public void MergeMzidsFilter()
         {
@@ -135,7 +137,8 @@ namespace MzidMergeTests
 
             var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter.mzid.gz";
 
-
+            var stopWatch = System.Diagnostics.Stopwatch.StartNew();
+            var options = new Options
             {
                 OutputFilePath = output,
                 MaxSpecEValue = 1e-10,
@@ -147,7 +150,32 @@ namespace MzidMergeTests
         }
 
         [Test]
-        public void MergeRecentMzidsDivideConquerFilter()
+        public void MergeMzidsFilterExcerpt()
+        {
+            var inputs = new List<string>
+            {
+                @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part1.mzid.gz",
+                @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part2.mzid.gz",
+                @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part3.mzid.gz"
+            };
+
+            var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter_excerpt.mzid.gz";
+
+            var stopWatch = System.Diagnostics.Stopwatch.StartNew();
+            var options = new Options
+            {
+                OutputFilePath = output,
+                MaxSpecEValue = 1e-10,
+            };
+            options.FilesToMerge.AddRange(inputs);
+            MzidMerging.MergeMzids(options);
+            stopWatch.Stop();
+            Console.WriteLine("Total processing time: {0:g}", stopWatch.Elapsed);
+        }
+
+        [Test]
+        [Ignore("Resource intensive; uses over 15 GB of memory")]
+        public void MergeMzidsDivideConquerFilter()
         {
             var inputs = new List<string>
             {
