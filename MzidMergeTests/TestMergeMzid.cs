@@ -43,16 +43,16 @@ namespace MzidMergeTests
 
             var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus.mzid.gz";
 
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            var options = new Options()
+            var stopWatch = System.Diagnostics.Stopwatch.StartNew();
+            var options = new Options
             {
                 OutputFilePath = output,
                 MaxSpecEValue = 100,
             };
             options.FilesToMerge.AddRange(inputs);
             MzidMerging.MergeMzids(options);
-            sw.Stop();
-            Console.WriteLine("Total processing time: {0}", sw.Elapsed);
+            stopWatch.Stop();
+            Console.WriteLine("Total processing time: {0:g}", stopWatch.Elapsed);
         }
 
         [Test]
@@ -89,7 +89,8 @@ namespace MzidMergeTests
 
             var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_dc.mzid.gz";
 
-            var options = new Options()
+            var stopWatch = System.Diagnostics.Stopwatch.StartNew();
+            var options = new Options
             {
                 OutputFilePath = output,
                 MaxSpecEValue = 100,
@@ -97,11 +98,11 @@ namespace MzidMergeTests
             };
             options.FilesToMerge.AddRange(inputs);
             MzidMerging.MergeMzidsDivideAndConquer(options);
-            sw.Stop();
-            Console.WriteLine("Total processing time: {0}", sw.Elapsed);
+            stopWatch.Stop();
+            Console.WriteLine("Total processing time: {0:g}", stopWatch.Elapsed);
         }
         [Test]
-        public void MergeRecentMzidsFilter()
+        public void MergeMzidsFilter()
         {
             var inputs = new List<string>
             {
@@ -135,16 +136,14 @@ namespace MzidMergeTests
             var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter.mzid.gz";
 
 
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            var options = new Options()
             {
                 OutputFilePath = output,
                 MaxSpecEValue = 1e-10,
             };
             options.FilesToMerge.AddRange(inputs);
             MzidMerging.MergeMzids(options);
-            sw.Stop();
-            Console.WriteLine("Total processing time: {0}", sw.Elapsed);
+            stopWatch.Stop();
+            Console.WriteLine("Total processing time: {0:g}", stopWatch.Elapsed);
         }
 
         [Test]
@@ -181,8 +180,8 @@ namespace MzidMergeTests
 
             var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter_dc.mzid.gz";
 
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            var options = new Options()
+            var stopWatch = System.Diagnostics.Stopwatch.StartNew();
+            var options = new Options
             {
                 OutputFilePath = output,
                 MaxSpecEValue = 100,
@@ -190,12 +189,12 @@ namespace MzidMergeTests
             };
             options.FilesToMerge.AddRange(inputs);
             MzidMerging.MergeMzidsDivideAndConquer(options);
-            sw.Stop();
-            Console.WriteLine("Total processing time: {0}", sw.Elapsed);
+            stopWatch.Stop();
+            Console.WriteLine("Total processing time: {0:g}", stopWatch.Elapsed);
         }
 
         [Test]
-        public void TestNameIdenticals()
+        public void TestNameParsing()
         {
             var inputs = new List<string>
             {
@@ -235,10 +234,10 @@ namespace MzidMergeTests
         [Test]
         public void TestOptions()
         {
-            var options = new Options();
-            options.InputDirectory = @"E:\Mzid_merge\New_test";
-            options.OutputFilePath = "blah";
-            options.MaxSpecEValue = 1e-10;
+            var options = new Options {
+                InputDirectory = @"C:\Temp\MzidMerger",
+                OutputFilePath = "blah",
+                MaxSpecEValue = 1e-10};
 
             if (options.Validate())
             {

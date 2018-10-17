@@ -17,7 +17,7 @@ namespace MzidMerger
     {
         public static void MergeMzids(Options options)
         {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             var targetFile = options.FilesToMerge.First();
             IEnumerable<IdentDataObj> toMerge = null;
             if (!options.MultiThread)
@@ -68,8 +68,8 @@ namespace MzidMerger
 
             MzIdentMlReaderWriter.Write(new MzIdentMLType(targetObj), options.OutputFilePath);
 
-            sw.Stop();
-            Console.WriteLine("Total time to merge {0} files: {1}", options.FilesToMerge.Count, sw.Elapsed);
+            stopWatch.Stop();
+            Console.WriteLine("Total time to merge {0} files: {1:g}", options.FilesToMerge.Count, stopWatch.Elapsed);
         }
 
         private static IdentDataObj ReadAndPreprocessFile(string filePath, Options options)
@@ -158,19 +158,19 @@ namespace MzidMerger
                     foreach (var pepEv in identData.SequenceCollection.PeptideEvidences)
                     {
                         // Re-Id PeptideEvidences
-                        var dbseq = pepEv.DBSequence.Id;
-                        if (dbseq.StartsWith("DBSeq", StringComparison.OrdinalIgnoreCase))
+                        var dbSeq = pepEv.DBSequence.Id;
+                        if (dbSeq.StartsWith("DBSeq", StringComparison.OrdinalIgnoreCase))
                         {
-                            dbseq = dbseq.Substring(5);
-                            if (int.TryParse(dbseq, out var offset))
+                            dbSeq = dbSeq.Substring(5);
+                            if (int.TryParse(dbSeq, out var offset))
                             {
-                                dbseq = (offset + pepEv.Start - 1).ToString();
+                                dbSeq = (offset + pepEv.Start - 1).ToString();
                             }
                         }
 
                         var pepId = pepEv.Peptide.Id.Substring(4);
 
-                        pepEv.Id = $"PepEv_{dbseq}_{pepId}_{pepEv.Start}";
+                        pepEv.Id = $"PepEv_{dbSeq}_{pepId}_{pepEv.Start}";
                     }
                 }
                 catch (Exception e)
@@ -243,39 +243,37 @@ namespace MzidMerger
                 return;
             }
 
-            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var stopWatch = System.Diagnostics.Stopwatch.StartNew();
 
             // Semaphore: initialCount, is the number initially available, maximumCount is the max allowed
             var threadLimiter = new Semaphore(options.MaxThreads, options.MaxThreads);
             var mergedData = DivideAndConquerMergeIdentData(options.FilesToMerge, threadLimiter, options.MaxSpecEValue, options.KeepOnlyBestResults, true, options).targetIdentDataObj;
 
-            sw.Stop();
-            Console.WriteLine("Mzid read time: {0}", readTime);
-            Console.WriteLine("Mzid convert/map time: {0}", readConvertTime);
-            Console.WriteLine("Mzid merge time: {0}", mergeTime);
-            Console.WriteLine("Mzid read and merge time: {0}", sw.Elapsed);
-            sw.Restart();
+            stopWatch.Stop();
+            Console.WriteLine("Mzid read time: {0:g}", mReadTime);
+            Console.WriteLine("Mzid merge time: {0:g}", mMergeTime);
+            Console.WriteLine("Mzid read and merge time: {0:g}", stopWatch.Elapsed);
+            stopWatch.Restart();
 
             MzIdentMlReaderWriter.Write(new MzIdentMLType(mergedData), options.OutputFilePath);
 
-            sw.Stop();
-            Console.WriteLine("Mzid write time: {0}", sw.Elapsed);
+            stopWatch.Stop();
+            Console.WriteLine("Mzid write time: {0}", stopWatch.Elapsed);
         }
 
-        private static TimeSpan readTime = TimeSpan.Zero;
-        private static TimeSpan readConvertTime = TimeSpan.Zero;
-        private static TimeSpan mergeTime = TimeSpan.Zero;
+        private static TimeSpan mReadTime = TimeSpan.Zero;
+        private static TimeSpan mMergeTime = TimeSpan.Zero;
         private static readonly object ReadTimeWriteLock = new object();
         private static readonly object MergeTimeWriteLock = new object();
 
         private MzidMerging(string filePath, Options options)
         {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             targetIdentDataObj = ReadAndPreprocessFile(filePath, options);
-            sw.Stop();
+            stopWatch.Stop();
             lock (ReadTimeWriteLock)
             {
-                readTime += sw.Elapsed;
+                mReadTime += stopWatch.Elapsed;
             }
         }
 
@@ -305,28 +303,34 @@ namespace MzidMerger
                 merged2.DropDictionaries();
                 var merged2Data = merged2.targetIdentDataObj;
 
-                var sw = System.Diagnostics.Stopwatch.StartNew();
-                // merge the results
+                var stopWatch = System.Diagnostics.Stopwatch.StartNew();
 
+                // merge the results
                 threadLimiter.WaitOne();
                 merged1.MergeIdentData(merged2Data, maxSpecEValue, keepOnlyBestResult, true);
                 threadLimiter.Release();
-                sw.Stop();
+                stopWatch.Stop();
 
-                Console.WriteLine("Time to merge {0}{1} files into {2}{3} files: {4}", secondHalf.Count, secondHalf.Count > 1 ? " merged" : "", firstHalf.Count, firstHalf.Count > 1 ? " merged" : "", sw.Elapsed);
+                Console.WriteLine("Time to merge {0}{1} files into {2}{3} files: {4:g}",
+                                  secondHalf.Count,
+                                  secondHalf.Count > 1 ? " merged" : "",
+                                  firstHalf.Count,
+                                  firstHalf.Count > 1 ? " merged" : "",
+                                  stopWatch.Elapsed);
+
                 lock (MergeTimeWriteLock)
                 {
-                    mergeTime += sw.Elapsed;
+                    mMergeTime += stopWatch.Elapsed;
                 }
 
                 if (finalize)
                 {
-                    sw.Restart();
+                    stopWatch.Restart();
                     // repopulate the DBSequence/Peptide/PeptideEvidence lists
                     merged1.FilterAndRepopulateSequenceCollection(maxSpecEValue, keepOnlyBestResult);
 
-                    sw.Stop();
-                    Console.WriteLine("Time to repopulate sequence collection: {0}", sw.Elapsed);
+                    stopWatch.Stop();
+                    Console.WriteLine("Time to repopulate sequence collection: {0}", stopWatch.Elapsed);
                 }
 
                 return merged1;
