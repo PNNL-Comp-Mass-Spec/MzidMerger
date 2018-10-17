@@ -43,6 +43,9 @@ Website: https://panomics.pnl.gov/ or https://omics.pnl.gov
 
 ## License
 
-The MzidMerger is licensed under the Apache License, Version 2.0; 
-you may not use this file except in compliance with the License.  You may obtain 
-a copy of the License at https://opensource.org/licenses/Apache-2.0
+The MzidMerger is licensed under the 2-Clause BSD License; 
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at https://opensource.org/licenses/BSD-2-Clause
+
+Copyright 2018 Battelle Memorial Institute
+
