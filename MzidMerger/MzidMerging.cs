@@ -19,7 +19,7 @@ namespace MzidMerger
         {
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             var targetFile = options.FilesToMerge.First();
-            IEnumerable<IdentDataObj> toMerge = null;
+            IEnumerable<IdentDataObj> toMerge;
             if (!options.MultiThread)
             {
                 toMerge = options.FilesToMerge.Skip(1).Select(x => ReadAndPreprocessFile(x, options));
@@ -36,30 +36,35 @@ namespace MzidMerger
             merger.MergeIdentData(toMerge, options.MaxSpecEValue, options.KeepOnlyBestResults, true);
 
             // Add the merging information
-            var mergerSoftware = new AnalysisSoftwareObj()
+            var mergerSoftware = new AnalysisSoftwareObj
             {
                 Id = "MzidMerger_Id",
                 Name = "MzidMerger",
                 Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(),
-                SoftwareName = new ParamObj() { Item = new UserParamObj() { Name = "MzidMerger" } },
+                SoftwareName = new ParamObj { Item = new UserParamObj { Name = "MzidMerger" } },
             };
             targetObj.AnalysisSoftwareList.Add(mergerSoftware);
 
-            targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols.First().AdditionalSearchParams.Items.Add(new UserParamObj() { Name = "Merger_KeepOnlyBestResults", Value = options.KeepOnlyBestResults.ToString() });
+            targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols.First().AdditionalSearchParams.Items.Add(new UserParamObj {
+                Name = "Merger_KeepOnlyBestResults",
+                Value = options.KeepOnlyBestResults.ToString() });
+
             if (options.MaxSpecEValue < 50)
             {
-                targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols.First().AdditionalSearchParams.Items.Add(new UserParamObj() { Name = "Merger_MaxSpecEValue", Value = options.MaxSpecEValue.ToString(CultureInfo.InvariantCulture) });
+                targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols.First().AdditionalSearchParams.Items.Add(new UserParamObj {
+                    Name = "Merger_MaxSpecEValue",
+                    Value = options.MaxSpecEValue.ToString(CultureInfo.InvariantCulture) });
             }
 
             var count = 1;
             foreach (var file in options.FilesToMerge)
             {
-                var sourceFile = new SourceFileInfo()
+                var sourceFile = new SourceFileInfo
                 {
                     Id = $"MergedMzid_{count++}",
                     Location = file,
                     Name = Path.GetFileName(file),
-                    FileFormat = new FileFormatInfo() { CVParam = new CVParamObj(CV.CVID.MS_mzIdentML_format) },
+                    FileFormat = new FileFormatInfo { CVParam = new CVParamObj(CV.CVID.MS_mzIdentML_format) },
                 };
                 targetObj.DataCollection.Inputs.SourceFiles.Add(sourceFile);
             }
@@ -684,7 +689,7 @@ namespace MzidMerger
 
         private Dictionary<string, PeptideObj> peptideDictionary = null;
 
-        private void Merge(IdentDataList<PeptideObj> target, IdentDataList<PeptideObj> toMerge)
+        private void Merge(IdentDataList<PeptideObj> target, IReadOnlyCollection<PeptideObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -714,7 +719,7 @@ namespace MzidMerger
                 target.Capacity = totalSize;
             }
 
-            // We can have duplicate peptides across different fasta files; we do need to make sure the peptideEvidence references are appropriately updated
+            // We can have duplicate peptides across different Fasta files; we do need to make sure the peptideEvidence references are appropriately updated
             foreach (var item in toMerge)
             {
                 if (peptideDictionary.TryGetValue(item.Id, out var existing))
@@ -735,7 +740,7 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(IdentDataList<PeptideEvidenceObj> target, IdentDataList<PeptideEvidenceObj> toMerge, IdentDataList<PeptideObj> targetPeptides)
+        private void Merge(IdentDataList<PeptideEvidenceObj> target, IdentDataList<PeptideEvidenceObj> toMerge, ICollection<PeptideObj> targetPeptides)
         {
             if (target == null || toMerge == null)
             {
@@ -1078,15 +1083,20 @@ namespace MzidMerger
             }
         }
 
-        private Dictionary<string, SpectraDataObj> spectraDataLookupByName = null;
-        private Dictionary<string, SpectrumIdentificationResultObj> spectrumResultLookupByFilenameAndSpecId = null;
+        private Dictionary<string, SpectraDataObj> spectraDataLookupByName;
+        private Dictionary<string, SpectrumIdentificationResultObj> spectrumResultLookupByFilenameAndSpecId;
 
         private string CreateSpectrumResultLookupName(string spectraDataName, string spectrumId)
         {
             return $"{spectraDataName}_{spectrumId}";
         }
 
-        private void Merge(IdentDataList<SpectrumIdentificationResultObj> target, IdentDataList<SpectrumIdentificationResultObj> toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool cleanupPostMerge)
+        private void Merge(
+            IdentDataList<SpectrumIdentificationResultObj> target,
+            IReadOnlyCollection<SpectrumIdentificationResultObj> toMerge,
+            double maxSpecEValue,
+            bool keepOnlyBestResult,
+            bool cleanupPostMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1108,7 +1118,7 @@ namespace MzidMerger
                     }
                     else
                     {
-                        Console.WriteLine("ERROR creating spectrumresult lookup: duplicate filename/spectrumid! \"{0}\"", lookupName);
+                        Console.WriteLine("ERROR creating spectrum result lookup: duplicate filename/SpectrumID! \"{0}\"", lookupName);
                     }
 
                     if (!spectraDataLookupByName.ContainsKey(result.SpectraData.Name))
