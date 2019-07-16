@@ -910,7 +910,7 @@ namespace MzidMerger
                 {
                     // not a duplicate, add it but change the ID since it is a duplicate
                     var id = item.Id + "x";
-                    while (target.Any(x => x.Id.Equals(item.Id)))
+                    while (target.Any(x => x.Id.Equals(id)))
                     {
                         id += "x";
                     }
