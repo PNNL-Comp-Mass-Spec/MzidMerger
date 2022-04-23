@@ -8,31 +8,32 @@ namespace MzidMerger
 {
     public class Options
     {
-        [Option("inDir", ArgPosition = 1, Required = true, HelpText = "Path to directory containing mzid files to be merged.", HelpShowsDefault = false)]
+
+        [Option("InDir", ArgPosition = 1, Required = true, HelpText = "Path to directory containing mzid files to be merged.", HelpShowsDefault = false)]
         public string InputDirectory { get; set; }
 
-        [Option("filter", HelpText = "Filename filter; filenames that match this string will be merged. *.mzid and *.mzid.gz are appended if neither ends the filter string. Use '*' for wildcard matches. (Default: All files ending in .mzid or .mzid.gz).", HelpShowsDefault = false)]
+        [Option("Filter", HelpText = "Filename filter; filenames that match this string will be merged. *.mzid and *.mzid.gz are appended if neither ends the filter string. Use '*' for wildcard matches. (Default: All files ending in .mzid or .mzid.gz).", HelpShowsDefault = false)]
         public string NameFilter { get; set; }
 
-        [Option("out", HelpText = "Filepath/filename of output file; if no path, input directory is used; by default will determine and use the common portion of the input file names.", HelpShowsDefault = false)]
+        [Option("Out", HelpText = "File path / filename of output file; if no path, input directory is used; by default will determine and use the common portion of the input file names.", HelpShowsDefault = false)]
         public string OutputFilePath { get; set; }
 
-        [Option("maxSpecEValue", HelpText = "Maximum SpecEValue to include in the merged file. Default value includes all results.", Min = 1e-30)]
+        [Option("MaxSpecEValue", HelpText = "Maximum SpecEValue to include in the merged file. Default value includes all results.", Min = 1e-30)]
         public double MaxSpecEValue { get; set; }
 
-        [Option("keepOnlyBestResults", HelpText = "If specified, only the best-scoring results for each spectrum are kept.")]
+        [Option("KeepOnlyBestResults", HelpText = "If specified, only the best-scoring results for each spectrum are kept.")]
         public bool KeepOnlyBestResults { get; set; }
 
-        [Option("highmem", Hidden = true, HelpText = "If specified, extra-high resource usage will be allowed, for a minor runtime advantage.")]
+        [Option("HighMem", Hidden = true, HelpText = "If specified, extra-high resource usage will be allowed, for a minor runtime advantage.")]
         public bool AllowHighResourceUsage { get; set; }
 
-        [Option("threads", Hidden = true, HelpText = "Max number of threads to use.")]
+        [Option("Threads", Hidden = true, HelpText = "Max number of threads to use.")]
         public int MaxThreads { get; set; }
 
-        [Option("fixIds", HelpText = "Fix the peptide and peptideEvidence IDs. Only use for e.g. older MS-GF+ results, that output many errors about duplicate IDs. Only fixes Peptide and PeptideEvidence IDs.")]
+        [Option("FixIds", HelpText = "Fix the peptide and peptideEvidence IDs. Only use for e.g. older MS-GF+ results, that output many errors about duplicate IDs. Only fixes Peptide and PeptideEvidence IDs.")]
         public bool FixIDs { get; set; }
 
-        [Option("multithread", HelpText = "If supplied, program will attempt to decrease merge time by reading multiple files in parallel. Will also require more memory, and is more likely to crash.")]
+        [Option("MultiThread", HelpText = "If supplied, program will attempt to decrease merge time by reading multiple files in parallel. Will also require more memory, and is more likely to crash.")]
         public bool MultiThread { get; set; }
 
         public List<string> FilesToMerge { get; } = new();
