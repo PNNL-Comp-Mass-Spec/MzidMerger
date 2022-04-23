@@ -809,7 +809,7 @@ namespace MzidMerger
                         }
                     }
 
-                    if (item.Id.ToLower().StartsWith("specident_"))
+                    if (item.Id.StartsWith("SpecIdent_", StringComparison.OrdinalIgnoreCase))
                     {
                         var counter = 1;
                         var id = item.Id;
@@ -972,7 +972,7 @@ namespace MzidMerger
             // We will need to change the IDs for uniqueness
             foreach (var item in toMerge)
             {
-                if (item.Id.ToLower().StartsWith("searchdb_"))
+                if (item.Id.StartsWith("SearchDB_", StringComparison.OrdinalIgnoreCase))
                 {
                     var counter = 1;
                     var id = item.Id;

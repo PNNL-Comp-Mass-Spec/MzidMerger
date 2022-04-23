@@ -63,7 +63,7 @@ namespace MzidMerger
                 return false;
             }
 
-            if (!NameFilter.ToLower().EndsWith(".mzid") && !NameFilter.ToLower().EndsWith(".mzid.gz"))
+            if (!NameFilter.EndsWith(".mzid", StringComparison.OrdinalIgnoreCase) && !NameFilter.EndsWith(".mzid.gz", StringComparison.OrdinalIgnoreCase))
             {
                 FilesToMerge.AddRange(Directory.EnumerateFiles(InputDirectory, NameFilter + "*.mzid"));
                 FilesToMerge.AddRange(Directory.EnumerateFiles(InputDirectory, NameFilter + "*.mzid.gz"));
@@ -100,7 +100,7 @@ namespace MzidMerger
                     OutputFilePath = Path.Combine(InputDirectory, OutputFilePath);
                 }
 
-                if (!OutputFilePath.ToLower().EndsWith(".mzid") && !OutputFilePath.ToLower().EndsWith(".mzid.gz"))
+                if (!OutputFilePath.EndsWith(".mzid", StringComparison.OrdinalIgnoreCase) && !OutputFilePath.EndsWith(".mzid.gz", StringComparison.OrdinalIgnoreCase))
                 {
                     OutputFilePath += ".mzid";
                 }
@@ -138,7 +138,7 @@ namespace MzidMerger
         public static string GetOutputNameStart(List<string> input)
         {
             var identical = GetLeftIdentical(input);
-            if (identical.ToLower().EndsWith("_part"))
+            if (identical.EndsWith("_part", StringComparison.OrdinalIgnoreCase))
             {
                 identical = identical.Substring(0, identical.Length - 5);
             }
