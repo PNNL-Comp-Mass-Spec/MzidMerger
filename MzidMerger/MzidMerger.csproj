@@ -19,8 +19,8 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="PRISM-Library" Version="2.6.2" />
-    <PackageReference Include="PSI_Interface" Version="2.3.0" />
+    <PackageReference Include="PRISM-Library" Version="2.7.0" />
+    <PackageReference Include="PSI_Interface" Version="2.5.71" />
   </ItemGroup>
   <!-- Disabled for now; causes an infinite build loop without the -\-no-build flag, which isn't available for .NET Core 2.0 (requires 2.1)
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
