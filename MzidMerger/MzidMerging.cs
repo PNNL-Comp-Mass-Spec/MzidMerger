@@ -121,7 +121,8 @@ namespace MzidMerger
                             // match to mass and residue (backward lookup from location)
                             if (fixedModDict.TryGetValue(massStr, out var fixedMods))
                             {
-                                var residue = "";
+                                string residue;
+
                                 if (isNTerm || isCTerm)
                                 {
                                     residue = ".";
@@ -686,7 +687,7 @@ namespace MzidMerger
             target.AddRange(toMerge);
         }
 
-        private Dictionary<string, PeptideObj> peptideDictionary = null;
+        private Dictionary<string, PeptideObj> peptideDictionary;
 
         private void Merge(IdentDataList<PeptideObj> target, IReadOnlyCollection<PeptideObj> toMerge)
         {
