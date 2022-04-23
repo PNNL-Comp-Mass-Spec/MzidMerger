@@ -13,12 +13,19 @@ using PSI_Interface.IdentData.mzIdentML;
 
 namespace MzidMerger
 {
-    public class MzidMerging
+    public sealed class MzidMerging
     {
         public static void MergeMzids(Options options)
         {
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
-            var targetFile = options.FilesToMerge.First();
+
+            if (options.FilesToMerge.Count < 2)
+            {
+                ConsoleMsgUtils.ShowWarning("Must supply two or more .mzID files; nothing to do");
+                return;
+            }
+
+            var targetFile = options.FilesToMerge[0];
             IEnumerable<IdentDataObj> toMerge;
             if (!options.MultiThread)
             {
