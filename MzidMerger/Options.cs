@@ -35,7 +35,7 @@ namespace MzidMerger
         [Option("multithread", HelpText = "If supplied, program will attempt to decrease merge time by reading multiple files in parallel. Will also require more memory, and is more likely to crash.")]
         public bool MultiThread { get; set; }
 
-        public List<string> FilesToMerge { get; } = new List<string>();
+        public List<string> FilesToMerge { get; } = new();
 
         public Options()
         {

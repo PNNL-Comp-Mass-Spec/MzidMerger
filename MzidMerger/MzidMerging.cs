@@ -268,8 +268,8 @@ namespace MzidMerger
 
         private static TimeSpan mReadTime = TimeSpan.Zero;
         private static TimeSpan mMergeTime = TimeSpan.Zero;
-        private static readonly object ReadTimeWriteLock = new object();
-        private static readonly object MergeTimeWriteLock = new object();
+        private static readonly object ReadTimeWriteLock = new();
+        private static readonly object MergeTimeWriteLock = new();
 
         private MzidMerging(string filePath, Options options)
         {
