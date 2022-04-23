@@ -286,7 +286,6 @@ namespace MzidMerger
         {
             if (filePaths.Count >= 2)
             {
-
                 var mid = (filePaths.Count + 1) / 2; // keep the greater half in the first half
                 var firstHalf = filePaths.GetRange(0, mid);
                 var secondHalf = filePaths.GetRange(mid, filePaths.Count - mid);

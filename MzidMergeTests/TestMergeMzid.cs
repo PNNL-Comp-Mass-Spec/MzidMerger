@@ -8,7 +8,6 @@ namespace MzidMergeTests
     [TestFixture]
     public class TestMergeMzid
     {
-
         [Test]
         public void MergeMzids()
         {
