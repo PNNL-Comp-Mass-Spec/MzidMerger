@@ -54,17 +54,22 @@ namespace MzidMerger
             MultiThread = false;
         }
 
+        private string GetSearchResultDescription(int foundFileCount)
+        {
+            return foundFileCount == 1 ? "found just one file" : "did not find any files";
+        }
+
         public bool Validate()
         {
             if (string.IsNullOrWhiteSpace(InputDirectory))
             {
-                Console.WriteLine("ERROR: Input directory must be specified!");
+                Console.WriteLine("ERROR: Input directory must be specified");
                 return false;
             }
 
             if (!Directory.Exists(InputDirectory))
             {
-                Console.WriteLine("ERROR: Input path is not a Directory!");
+                Console.WriteLine("ERROR: Input path is not a Directory");
                 return false;
             }
 
@@ -74,7 +79,11 @@ namespace MzidMerger
                 FilesToMerge.AddRange(Directory.EnumerateFiles(InputDirectory, NameFilter + "*.mzid.gz"));
                 if (FilesToMerge.Count < 2)
                 {
-                    Console.WriteLine("ERROR: Not enough files in directory \"{0}\" that matched filter \"{1}\" or \"{2}\": found {3} files.", InputDirectory, NameFilter + "*.mzid", NameFilter + "*.mzid.gz", FilesToMerge.Count);
+                    Console.WriteLine(
+                        "ERROR: Not enough files in directory \"{0}\" that matched filter \"{1}\" or \"{2}\": {3}",
+                        InputDirectory, NameFilter + "*.mzid", NameFilter + "*.mzid.gz",
+                        GetSearchResultDescription(FilesToMerge.Count));
+
                     return false;
                 }
             }
@@ -83,7 +92,12 @@ namespace MzidMerger
                 FilesToMerge.AddRange(Directory.EnumerateFiles(InputDirectory, NameFilter));
                 if (FilesToMerge.Count < 2)
                 {
-                    Console.WriteLine("ERROR: Not enough files in directory \"{0}\" that matched filter \"{1}\": found {2} files.", InputDirectory, NameFilter, FilesToMerge.Count);
+                    var foundFilesDescription = FilesToMerge.Count == 1 ? "found just one file" : "did not find any files";
+                    Console.WriteLine(
+                        "ERROR: Not enough files in directory \"{0}\" that matched filter \"{1}\": {2}",
+                        InputDirectory, NameFilter,
+                        GetSearchResultDescription(FilesToMerge.Count));
+
                     return false;
                 }
             }
@@ -94,7 +108,7 @@ namespace MzidMerger
 
                 if (File.Exists(OutputFilePath))
                 {
-                    Console.WriteLine("ERROR: file already exists at the auto-determined output path \"{0}\"!", OutputFilePath);
+                    Console.WriteLine("ERROR: file already exists at the auto-determined output path \"{0}\"", OutputFilePath);
                     return false;
                 }
             }
