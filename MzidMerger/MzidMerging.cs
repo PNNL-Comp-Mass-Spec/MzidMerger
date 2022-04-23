@@ -317,9 +317,9 @@ namespace MzidMerger
 
                 Console.WriteLine("Time to merge {0}{1} files into {2}{3} files: {4:g}",
                                   secondHalf.Count,
-                                  secondHalf.Count > 1 ? " merged" : "",
+                                  secondHalf.Count > 1 ? " merged" : string.Empty,
                                   firstHalf.Count,
-                                  firstHalf.Count > 1 ? " merged" : "",
+                                  firstHalf.Count > 1 ? " merged" : string.Empty,
                                   stopWatch.Elapsed);
 
                 lock (MergeTimeWriteLock)

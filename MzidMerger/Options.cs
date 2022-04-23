@@ -39,8 +39,8 @@ namespace MzidMerger
 
         public Options()
         {
-            InputDirectory = "";
-            NameFilter = "";
+            InputDirectory = string.Empty;
+            NameFilter = string.Empty;
             MaxSpecEValue = 100;
             KeepOnlyBestResults = false;
             AllowHighResourceUsage = false;
@@ -175,7 +175,7 @@ namespace MzidMerger
         {
             if (input.Count == 0)
             {
-                return "";
+                return string.Empty;
             }
 
             if (input.Count == 1)
