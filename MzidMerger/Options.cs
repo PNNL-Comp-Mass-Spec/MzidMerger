@@ -159,7 +159,8 @@ namespace MzidMerger
 
         public static string GetRightIdentical(List<string> input)
         {
-            return Reverse(GetLeftIdentical(input.Select(Reverse).ToList()));
+            // Reverse(GetLeftIdentical(input.Select(Reverse).ToList()));
+            return Reverse(GetLeftIdentical(input.ConvertAll(Reverse)));
         }
 
         private static string Reverse(string s)
