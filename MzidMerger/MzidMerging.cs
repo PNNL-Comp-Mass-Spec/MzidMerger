@@ -900,8 +900,8 @@ namespace MzidMerger
                 if (target.Any(x => x.Equals(item)))
                 {
                     // exact duplicate, just need to change ids and then re-map references TODO
-                    var newId = target.First(x => x.Equals(item)).Id;
-                    item.Id = newId;
+
+                    item.Id = target.First(x => x.Equals(item)).Id;
                     continue;
                 }
 
