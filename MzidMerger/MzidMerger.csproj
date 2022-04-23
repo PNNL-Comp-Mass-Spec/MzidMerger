@@ -25,7 +25,7 @@
   </ItemGroup>
   <!-- Disabled for now; causes an infinite build loop without the -\-no-build flag, which isn't available for .NET Core 2.0 (requires 2.1)
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="dotnet publish $(ProjectPath) -c $(ConfigurationName) -f netcoreapp2.0 -/-no-build" />
+    <Exec Command="dotnet publish $(ProjectPath) -c $(ConfigurationName) -f netstandard2.0 -/-no-build" />
   </Target>
   -->
 </Project>
