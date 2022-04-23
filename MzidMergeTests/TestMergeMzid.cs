@@ -41,7 +41,7 @@ namespace MzidMergeTests
                 @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part25.mzid.gz",
             };
 
-            var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus.mzid.gz";
+            const string output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus.mzid.gz";
 
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             var options = new Options
@@ -88,7 +88,7 @@ namespace MzidMergeTests
                 @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part25.mzid.gz",
             };
 
-            var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_dc.mzid.gz";
+            const string output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_dc.mzid.gz";
 
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             var options = new Options
@@ -135,7 +135,7 @@ namespace MzidMergeTests
                 @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part25.mzid.gz",
             };
 
-            var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter.mzid.gz";
+            const string output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter.mzid.gz";
 
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             var options = new Options
@@ -159,7 +159,7 @@ namespace MzidMergeTests
                 @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part3.mzid.gz"
             };
 
-            var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter_excerpt.mzid.gz";
+            const string output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter_excerpt.mzid.gz";
 
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             var options = new Options
@@ -206,7 +206,7 @@ namespace MzidMergeTests
                 @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_Part25.mzid.gz",
             };
 
-            var output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter_dc.mzid.gz";
+            const string output = @"C:\Temp\MzidMerger\Buckley_12Ccell_Ag_09_14_QE_RR_29Sep17_Pippin_17-07-05_msgfplus_filter_dc.mzid.gz";
 
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             var options = new Options
