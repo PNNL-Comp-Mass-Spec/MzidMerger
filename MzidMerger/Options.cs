@@ -92,7 +92,6 @@ namespace MzidMerger
                 FilesToMerge.AddRange(Directory.EnumerateFiles(InputDirectory, NameFilter));
                 if (FilesToMerge.Count < 2)
                 {
-                    var foundFilesDescription = FilesToMerge.Count == 1 ? "found just one file" : "did not find any files";
                     Console.WriteLine(
                         "ERROR: Not enough files in directory \"{0}\" that matched filter \"{1}\": {2}",
                         InputDirectory, NameFilter,
