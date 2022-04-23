@@ -8,6 +8,7 @@ namespace MzidMerger
 {
     public class Options
     {
+        // Ignore Spelling: mzid
 
         [Option("InDir", ArgPosition = 1, Required = true, HelpText = "Path to directory containing mzid files to be merged.", HelpShowsDefault = false)]
         public string InputDirectory { get; set; }
@@ -38,6 +39,9 @@ namespace MzidMerger
 
         public List<string> FilesToMerge { get; } = new();
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public Options()
         {
             InputDirectory = string.Empty;
