@@ -17,11 +17,11 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.115">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="PRISM-Library" Version="2.8.16" />
+    <PackageReference Include="PRISM-Library" Version="2.9.5" />
     <PackageReference Include="PSI_Interface" Version="2.6.2" />
   </ItemGroup>
   <!-- Disabled for now; causes an infinite build loop without the -\-no-build flag, which isn't available for .NET Core 2.0 (requires 2.1)
