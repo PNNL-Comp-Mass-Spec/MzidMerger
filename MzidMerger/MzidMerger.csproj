@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net462;net472;net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net472;net48;net8.0</TargetFrameworks>
     <RootNamespace>MzidMerger</RootNamespace>
     <AssemblyName>MzidMerger</AssemblyName>
     <PackageId>MzidMerger</PackageId>
