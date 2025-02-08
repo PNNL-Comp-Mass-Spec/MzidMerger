@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MzidMerger", "MzidMerger\MzidMerger_with_PSI-Interface.csproj", "{92CE7293-13AA-48EF-8537-98B5F5F91519}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MzidMergeTests", "MzidMergeTests\MzidMergeTests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSI_Interface", "..\PSI_Interface\PSI_Interface\PSI_Interface.csproj", "{665E13A6-FA05-461F-8A0D-8C83452A2F97}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92CE7293-13AA-48EF-8537-98B5F5F91519}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92CE7293-13AA-48EF-8537-98B5F5F91519}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92CE7293-13AA-48EF-8537-98B5F5F91519}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92CE7293-13AA-48EF-8537-98B5F5F91519}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{665E13A6-FA05-461F-8A0D-8C83452A2F97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{665E13A6-FA05-461F-8A0D-8C83452A2F97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{665E13A6-FA05-461F-8A0D-8C83452A2F97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{665E13A6-FA05-461F-8A0D-8C83452A2F97}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {38FE0AD7-B9DE-435E-A53D-64ED1E8D996C}
+	EndGlobalSection
+EndGlobal

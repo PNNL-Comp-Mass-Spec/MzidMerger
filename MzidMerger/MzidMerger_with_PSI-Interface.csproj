@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net472;net48;net8.0</TargetFrameworks>
+    <RootNamespace>MzidMerger</RootNamespace>
+    <AssemblyName>MzidMerger</AssemblyName>
+    <PackageId>MzidMerger</PackageId>
+    <Description>Merges mzid[.gz] files into a single mzid[.gz]. Designed for MS-GF+ mzid files (looks for SpecEValue scores)</Description>
+    <Company>Pacific Northwest National Laboratory</Company>
+    <Product>Mzid To Tsv Converter</Product>
+    <Authors>PNNL-Comp-Mass-Spec</Authors>
+    <RepositoryUrl>https://github.com/PNNL-Comp-Mass-Spec/MzidMerger</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <Copyright>Copyright @ PNNL 2018</Copyright>
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.115">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="PRISM-Library" Version="2.9.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\PSI_Interface\PSI_Interface\PSI_Interface.csproj" />
+  </ItemGroup>
+  <!-- Disabled for now; causes an infinite build loop without the -\-no-build flag, which isn't available for .NET Core 2.0 (requires 2.1)
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="dotnet publish $(ProjectPath) -c $(ConfigurationName) -f netstandard2.0 -/-no-build" />
+  </Target>
+  -->
+</Project>
