@@ -40,7 +40,7 @@ namespace MzidMerger
             var targetObj = ReadAndPreprocessFile(targetFile, options);
 
             var merger = new MzidMerging(targetObj);
-            merger.MergeIdentData(toMerge, options.MaxSpecEValue, options.KeepOnlyBestResults, true);
+            merger.MergeIdentData(toMerge, options, true);
 
             // Add the merging information
             var mergerSoftware = new AnalysisSoftwareObj
@@ -200,21 +200,23 @@ namespace MzidMerger
             return identData;
         }
 
-        private void MergeIdentData(IEnumerable<IdentDataObj> toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool remapPostMerge)
+        private void MergeIdentData(IEnumerable<IdentDataObj> toMerge, Options options, bool remapPostMerge)
         {
             var mergedCount = 2; // start at 2, since we are merging into the first file.
+
             foreach (var mergeObj in toMerge)
             {
-                Console.Write("\rMerging file {0}...                                 ", mergedCount);
-                MergeIdentData(mergeObj, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
+                Console.Write("\rMerging file {0} / {1} ...                                 ", mergedCount, options.FilesToMerge.Count);
+                MergeIdentData(mergeObj, options.MaxSpecEValue, options.KeepOnlyBestResults, remapPostMerge);
                 mergedCount++;
             }
+
             Console.WriteLine();
 
             if (remapPostMerge)
             {
                 Console.WriteLine("Repopulating the sequence collection and fixing IDs...");
-                FilterAndRepopulateSequenceCollection(maxSpecEValue, keepOnlyBestResult);
+                FilterAndRepopulateSequenceCollection(options.MaxSpecEValue, options.KeepOnlyBestResults);
             }
 
             Console.WriteLine("File merge complete.");
