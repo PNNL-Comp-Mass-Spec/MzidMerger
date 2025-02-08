@@ -514,7 +514,7 @@ namespace MzidMerger
             dbSeqList.AddRange(dbSeqLookup.Values);
         }
 
-        private string ChangeDBSequenceId(DbSequenceObj dbSeq)
+        private static string ChangeDBSequenceId(DbSequenceObj dbSeq)
         {
             var sdbId = dbSeq.SearchDatabase.Id;
             if (sdbId.StartsWith("SearchDB_"))
@@ -530,7 +530,7 @@ namespace MzidMerger
             return sdbId;
         }
 
-        private void ChangePepEvId(PeptideEvidenceObj pepEv)
+        private static void ChangePepEvId(PeptideEvidenceObj pepEv)
         {
             var sdbId = ChangeDBSequenceId(pepEv.DBSequence);
 
@@ -544,7 +544,7 @@ namespace MzidMerger
 
         #region Base-level elements
 
-        private void Merge(IdentDataList<CVInfo> target, IdentDataList<CVInfo> toMerge)
+        private static void Merge(IdentDataList<CVInfo> target, IdentDataList<CVInfo> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -564,7 +564,7 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(IdentDataList<AnalysisSoftwareObj> target, IdentDataList<AnalysisSoftwareObj> toMerge)
+        private static void Merge(IdentDataList<AnalysisSoftwareObj> target, IdentDataList<AnalysisSoftwareObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -584,7 +584,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(ProviderObj target, ProviderObj toMerge)
+        private static void Merge(ProviderObj target, ProviderObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -595,7 +595,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(IReadOnlyCollection<AbstractContactObj> target, IReadOnlyCollection<AbstractContactObj> toMerge)
+        private static void Merge(IReadOnlyCollection<AbstractContactObj> target, IReadOnlyCollection<AbstractContactObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -606,7 +606,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(IReadOnlyCollection<SampleObj> target, IReadOnlyCollection<SampleObj> toMerge)
+        private static void Merge(IReadOnlyCollection<SampleObj> target, IReadOnlyCollection<SampleObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -634,7 +634,7 @@ namespace MzidMerger
             Merge(target.PeptideEvidences, toMerge.PeptideEvidences, target.Peptides);
         }
 
-        private void Merge(AnalysisCollectionObj target, AnalysisCollectionObj toMerge)
+        private static void Merge(AnalysisCollectionObj target, AnalysisCollectionObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -645,7 +645,7 @@ namespace MzidMerger
             Merge(target.ProteinDetection, toMerge.ProteinDetection);
         }
 
-        private void Merge(AnalysisProtocolCollectionObj target, AnalysisProtocolCollectionObj toMerge)
+        private static void Merge(AnalysisProtocolCollectionObj target, AnalysisProtocolCollectionObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -667,7 +667,7 @@ namespace MzidMerger
             Merge(target.AnalysisData, toMerge.AnalysisData, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
         }
 
-        private void Merge(IReadOnlyCollection<BibliographicReferenceObj> target, IReadOnlyCollection<BibliographicReferenceObj> toMerge)
+        private static void Merge(IReadOnlyCollection<BibliographicReferenceObj> target, IReadOnlyCollection<BibliographicReferenceObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -682,7 +682,7 @@ namespace MzidMerger
 
         #region Sequence collection contents
 
-        private void Merge(IdentDataList<DbSequenceObj> target, IReadOnlyCollection<DbSequenceObj> toMerge)
+        private static void Merge(IdentDataList<DbSequenceObj> target, IReadOnlyCollection<DbSequenceObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -775,7 +775,7 @@ namespace MzidMerger
 
         #region Analysis collection contents
 
-        private void Merge(IdentDataList<SpectrumIdentificationObj> target, IdentDataList<SpectrumIdentificationObj> toMerge)
+        private static void Merge(IdentDataList<SpectrumIdentificationObj> target, IdentDataList<SpectrumIdentificationObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -848,7 +848,7 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(ProteinDetectionObj target, ProteinDetectionObj toMerge)
+        private static void Merge(ProteinDetectionObj target, ProteinDetectionObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -861,7 +861,7 @@ namespace MzidMerger
             // NOTE: references ProteinDetectionProtocol
         }
 
-        private void Merge(IReadOnlyCollection<InputSpectrumIdentificationsObj> target, List<InputSpectrumIdentificationsObj> toMerge)
+        private static void Merge(IReadOnlyCollection<InputSpectrumIdentificationsObj> target, List<InputSpectrumIdentificationsObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -876,7 +876,7 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(InputSpectrumIdentificationsObj target, InputSpectrumIdentificationsObj toMerge)
+        private static void Merge(InputSpectrumIdentificationsObj target, InputSpectrumIdentificationsObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -890,7 +890,7 @@ namespace MzidMerger
 
         #region Analysis protocol collection contents
 
-        private void Merge(IdentDataList<SpectrumIdentificationProtocolObj> target, IdentDataList<SpectrumIdentificationProtocolObj> toMerge)
+        private static void Merge(IdentDataList<SpectrumIdentificationProtocolObj> target, IdentDataList<SpectrumIdentificationProtocolObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -929,7 +929,7 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(ProteinDetectionProtocolObj target, ProteinDetectionProtocolObj toMerge)
+        private static void Merge(ProteinDetectionProtocolObj target, ProteinDetectionProtocolObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -941,7 +941,7 @@ namespace MzidMerger
             // TODO: More details!!!
         }
 
-        private void Merge(AnalysisSoftwareObj target, AnalysisSoftwareObj toMerge)
+        private static void Merge(AnalysisSoftwareObj target, AnalysisSoftwareObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -957,7 +957,7 @@ namespace MzidMerger
 
         #region Data collection contents
 
-        private void Merge(InputsObj target, InputsObj toMerge, double maxSpecEValue = 100.0)
+        private static void Merge(InputsObj target, InputsObj toMerge, double maxSpecEValue = 100.0)
         {
             if (target == null || toMerge == null)
             {
@@ -969,7 +969,7 @@ namespace MzidMerger
             Merge(target.SpectraDataList, toMerge.SpectraDataList);
         }
 
-        private void Merge(IdentDataList<SearchDatabaseInfo> target, IdentDataList<SearchDatabaseInfo> toMerge)
+        private static void Merge(IdentDataList<SearchDatabaseInfo> target, IdentDataList<SearchDatabaseInfo> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1006,7 +1006,7 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(IdentDataList<SpectraDataObj> target, IdentDataList<SpectraDataObj> toMerge)
+        private static void Merge(IdentDataList<SpectraDataObj> target, IdentDataList<SpectraDataObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1066,7 +1066,7 @@ namespace MzidMerger
             toMerge.Name = target.Name;
         }
 
-        private void Merge(IdentDataList<MeasureObj> target, IdentDataList<MeasureObj> toMerge)
+        private static void Merge(IdentDataList<MeasureObj> target, IdentDataList<MeasureObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1093,7 +1093,7 @@ namespace MzidMerger
         private Dictionary<string, SpectraDataObj> spectraDataLookupByName;
         private Dictionary<string, SpectrumIdentificationResultObj> spectrumResultLookupByFilenameAndSpecId;
 
-        private string CreateSpectrumResultLookupName(string spectraDataName, string spectrumId)
+        private static string CreateSpectrumResultLookupName(string spectraDataName, string spectrumId)
         {
             return $"{spectraDataName}_{spectrumId}";
         }
@@ -1144,6 +1144,7 @@ namespace MzidMerger
             foreach (var item in toMerge)
             {
                 var lookupName = CreateSpectrumResultLookupName(item.SpectraData.Name, item.SpectrumID);
+
                 if (spectrumResultLookupByFilenameAndSpecId.TryGetValue(lookupName, out var existing))
                 {
                     Merge(existing, item, maxSpecEValue, keepOnlyBestResult, cleanupPostMerge);
@@ -1169,7 +1170,7 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(SpectrumIdentificationResultObj target, SpectrumIdentificationResultObj toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool cleanupPostMerge)
+        private static void Merge(SpectrumIdentificationResultObj target, SpectrumIdentificationResultObj toMerge, double maxSpecEValue, bool keepOnlyBestResult, bool cleanupPostMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1203,7 +1204,7 @@ namespace MzidMerger
 
         #region Unimplemented...
 
-        private void Merge(ProteinDetectionListObj target, ProteinDetectionListObj toMerge)
+        private static void Merge(ProteinDetectionListObj target, ProteinDetectionListObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1213,7 +1214,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(ContactRoleObj target, ContactRoleObj toMerge)
+        private static void Merge(ContactRoleObj target, ContactRoleObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1224,7 +1225,7 @@ namespace MzidMerger
             Merge(target.Role, toMerge.Role);
         }
 
-        private void Merge(AbstractContactObj target, AbstractContactObj toMerge)
+        private static void Merge(AbstractContactObj target, AbstractContactObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1234,7 +1235,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(RoleObj target, RoleObj toMerge)
+        private static void Merge(RoleObj target, RoleObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1244,7 +1245,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(ParamListObj target, ParamListObj toMerge)
+        private static void Merge(ParamListObj target, ParamListObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1254,7 +1255,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(MeasureObj target, MeasureObj toMerge)
+        private static void Merge(MeasureObj target, MeasureObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1264,7 +1265,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(List<CVParamObj> target, List<CVParamObj> toMerge)
+        private static void Merge(List<CVParamObj> target, List<CVParamObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1274,7 +1275,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(CVParamObj target, CVParamObj toMerge)
+        private static void Merge(CVParamObj target, CVParamObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1284,7 +1285,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(IdentDataList<UserParamObj> target, IdentDataList<UserParamObj> toMerge)
+        private static void Merge(IdentDataList<UserParamObj> target, IdentDataList<UserParamObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1294,7 +1295,7 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        private void Merge(UserParamObj target, UserParamObj toMerge)
+        private static void Merge(UserParamObj target, UserParamObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1305,7 +1306,7 @@ namespace MzidMerger
         }
 
         /*
-        private void Merge(Obj target, Obj toMerge)
+        private static void Merge(Obj target, Obj toMerge)
         {
             if (target == null || toMerge == null)
             {
