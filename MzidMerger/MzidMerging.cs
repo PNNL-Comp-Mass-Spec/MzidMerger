@@ -50,20 +50,22 @@ namespace MzidMerger
                 Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                 SoftwareName = new ParamObj { Item = new UserParamObj { Name = "MzidMerger" } },
             };
+
             targetObj.AnalysisSoftwareList.Add(mergerSoftware);
 
-            targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols.First().AdditionalSearchParams.Items.Add(new UserParamObj {
+            targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj {
                 Name = "Merger_KeepOnlyBestResults",
                 Value = options.KeepOnlyBestResults.ToString() });
 
             if (options.MaxSpecEValue < 50)
             {
-                targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols.First().AdditionalSearchParams.Items.Add(new UserParamObj {
+                targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj {
                     Name = "Merger_MaxSpecEValue",
                     Value = options.MaxSpecEValue.ToString(CultureInfo.InvariantCulture) });
             }
 
             var count = 1;
+
             foreach (var file in options.FilesToMerge)
             {
                 var sourceFile = new SourceFileInfo
@@ -95,9 +97,11 @@ namespace MzidMerger
                     //var pepDict = new Dictionary<string, PeptideObj>(); // TODO: Monitor for duplicates
                     var mods = identData.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].ModificationParams.Where(x => x.FixedMod);
                     var fixedModDict = new Dictionary<string, List<SearchModificationObj>>();
+
                     foreach (var mod in mods)
                     {
                         var massStr = mod.MassDelta.ToString("F4");
+
                         if (!fixedModDict.ContainsKey(massStr))
                         {
                             fixedModDict.Add(massStr, new List<SearchModificationObj>());
@@ -125,6 +129,7 @@ namespace MzidMerger
                             }
 
                             var massStr = mod.MonoisotopicMassDelta.ToString("F4");
+
                             // match to mass and residue (backward lookup from location)
                             if (fixedModDict.TryGetValue(massStr, out var fixedMods))
                             {
@@ -401,7 +406,8 @@ namespace MzidMerger
 
             //foreach (var identList in targetIdentDataObj.DataCollection.AnalysisData.SpectrumIdentificationList)
             //{
-            var identList = targetIdentDataObj.DataCollection.AnalysisData.SpectrumIdentificationList.First();
+
+            var identList = targetIdentDataObj.DataCollection.AnalysisData.SpectrumIdentificationList[0];
 
             // ToList() to create a distinct list, and allow modification of the original
             foreach (var specIdResult in identList.SpectrumIdentificationResults.ToList())
