@@ -219,7 +219,7 @@ namespace MzidMerger
 
             Console.WriteLine("File merge complete.");
 
-            // Final TODO: rewrite all of the IDs, to ensure uniqueness
+            // Final TODO: rewrite the IDs, to ensure uniqueness
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace MzidMerger
             Merge(targetIdentDataObj.DataCollection, toMerge.DataCollection, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
             Merge(targetIdentDataObj.BibliographicReferences, toMerge.BibliographicReferences);
 
-            // Final TODO: rewrite all of the IDs, to ensure uniqueness
+            // Final TODO: rewrite the IDs, to ensure uniqueness
         }
 
         private MzidMerging(IdentDataObj target)
@@ -424,7 +424,7 @@ namespace MzidMerger
                     specIdResult.RemoveMatchesNotBestSpecEValue();
                 }
 
-                // re-rank all of the spectrumIdentificationItems in each spectrumIdentification result
+                // Re-rank the spectrumIdentificationItems in each spectrumIdentification result
                 specIdResult.ReRankBySpecEValue();
 
                 // ToList() to create a distinct list, and allow modification of the original
@@ -695,7 +695,7 @@ namespace MzidMerger
                 return;
             }
 
-            // We are focusing on merging results from split-fasta searches right now, so just include all of the DBSequences
+            // We are focusing on merging results from split-fasta searches right now, so just include the DBSequences
             // IDs will need to be changed later to ensure distinction TODO
             target.AddRange(toMerge);
         }
@@ -760,7 +760,7 @@ namespace MzidMerger
                 return;
             }
 
-            // We are focusing on merging results from split-fasta searches right now, so just include all of the DBSequences (because each one is tied to a distinct protein)
+            // We are focusing on merging results from split-fasta searches right now, so just include the DBSequences (because each one is tied to a distinct protein)
             // IDs will need to be changed later to ensure distinction TODO
             target.AddRange(toMerge);
 
@@ -982,7 +982,7 @@ namespace MzidMerger
                 return;
             }
 
-            // Assuming we are combining a split search, we should just add all of the new ones
+            // Assuming we are combining a split search, we should just add the new ones
             // We will need to change the IDs for uniqueness
             foreach (var item in toMerge)
             {
