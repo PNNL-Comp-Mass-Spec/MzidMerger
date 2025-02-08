@@ -411,7 +411,7 @@ namespace MzidMerger
 
             var identList = targetIdentDataObj.DataCollection.AnalysisData.SpectrumIdentificationList[0];
 
-            // ToList() to create a distinct list, and allow modification of the original
+            // Use .ToList() to create a distinct list, and allow modification of the original
             foreach (var specIdResult in identList.SpectrumIdentificationResults.ToList())
             {
                 if (specIdResult.BestSpecEVal() > maxSpecEValue)
@@ -429,7 +429,7 @@ namespace MzidMerger
                 // Re-rank the spectrumIdentificationItems in each spectrumIdentification result
                 specIdResult.ReRankBySpecEValue();
 
-                // ToList() to create a distinct list, and allow modification of the original
+                // Use .ToList() to create a distinct list, and allow modification of the original
                 foreach (var specIdItem in specIdResult.SpectrumIdentificationItems.ToList())
                 {
                     if (specIdItem.GetSpecEValue() > maxSpecEValue)
@@ -525,6 +525,7 @@ namespace MzidMerger
         private static string ChangeDBSequenceId(DbSequenceObj dbSeq)
         {
             var sdbId = dbSeq.SearchDatabase.Id;
+
             if (sdbId.StartsWith("SearchDB_"))
             {
                 sdbId = sdbId.Replace("SearchDB_", "sdb");
@@ -925,6 +926,7 @@ namespace MzidMerger
                 {
                     // not a duplicate, add it but change the ID since it is a duplicate
                     var id = item.Id + "x";
+
                     while (target.Any(x => x.Id.Equals(id)))
                     {
                         id += "x";
