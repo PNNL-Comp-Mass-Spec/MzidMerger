@@ -5,6 +5,8 @@ namespace MzidMerger
 {
     public class Program
     {
+        // Ignore Spelling: mzid
+
         public static int Main(string[] args)
         {
             var options = new Options();

@@ -15,6 +15,8 @@ namespace MzidMerger
 {
     public sealed class MzidMerging
     {
+        // Ignore Spelling: mzid, mzids
+
         public static void MergeMzids(Options options)
         {
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
