@@ -1200,13 +1200,13 @@ namespace MzidMerger
             // Add all spectrum identification items
             target.SpectrumIdentificationItems.AddRange(toMergeItems);
 
-            if (keepOnlyBestResult && prevCount < target.SpectrumIdentificationItems.Count)
-            {
-                target.RemoveMatchesNotBestSpecEValue();
-            }
-
             if (!cleanupPostMerge)
             {
+                if (keepOnlyBestResult && prevCount < target.SpectrumIdentificationItems.Count)
+                {
+                    target.RemoveMatchesNotBestSpecEValue();
+                }
+
                 // sort by score, update rank and id
                 target.ReRankBySpecEValue();
             }
