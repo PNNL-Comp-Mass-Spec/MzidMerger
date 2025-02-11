@@ -108,12 +108,14 @@ namespace MzidMerger
                     {
                         var massStr = mod.MassDelta.ToString("F4");
 
-                        if (!fixedModDict.ContainsKey(massStr))
+                        if (fixedModDict.TryGetValue(massStr, out var value))
+                        {
+                            value.Add(mod);
+                        }
+                        else
                         {
                             fixedModDict.Add(massStr, new List<SearchModificationObj>());
                         }
-
-                        fixedModDict[massStr].Add(mod);
                     }
 
                     foreach (var peptide in identData.SequenceCollection.Peptides)
