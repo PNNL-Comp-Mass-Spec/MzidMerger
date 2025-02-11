@@ -122,10 +122,12 @@ namespace MzidMerger
                     {
                         // Re-ID peptides...
                         var seq = peptide.PeptideSequence;
+
                         foreach (var mod in peptide.Modifications.OrderByDescending(x => x.Location).ThenByDescending(x => x.MonoisotopicMassDelta))
                         {
                             var isNTerm = false;
                             var isCTerm = false;
+
                             if (mod.Location == 0)
                             {
                                 isNTerm = true;
@@ -185,6 +187,7 @@ namespace MzidMerger
                     {
                         // Re-Id PeptideEvidences
                         var dbSeq = pepEv.DBSequence.Id;
+
                         if (dbSeq.StartsWith("DBSeq", StringComparison.OrdinalIgnoreCase))
                         {
                             dbSeq = dbSeq.Substring(5);
@@ -706,7 +709,7 @@ namespace MzidMerger
                 return;
             }
 
-            // We are focusing on merging results from split-fasta searches right now, so just include the DBSequences
+            // We are focusing on merging results from split-FASTA searches right now, so just include the DBSequences
             // IDs will need to be changed later to ensure distinction TODO
             target.AddRange(toMerge);
         }
@@ -723,6 +726,7 @@ namespace MzidMerger
             if (peptideDictionary == null || peptideDictionary.Count == 0)
             {
                 peptideDictionary = new Dictionary<string, PeptideObj>((int)(target.Count * 1.5));
+
                 // Should only need to do this once, because we maintain as we go.
                 foreach (var item in target)
                 {
@@ -738,12 +742,13 @@ namespace MzidMerger
             }
 
             var totalSize = target.Count + toMerge.Count;
+
             if (target.Capacity < totalSize)
             {
                 target.Capacity = totalSize;
             }
 
-            // We can have duplicate peptides across different Fasta files; we do need to make sure the peptideEvidence references are appropriately updated
+            // We can have duplicate peptides across different FASTA files; we do need to make sure the peptideEvidence references are appropriately updated
             foreach (var item in toMerge)
             {
                 if (peptideDictionary.TryGetValue(item.Id, out var existing))
@@ -772,11 +777,11 @@ namespace MzidMerger
                 return;
             }
 
-            // We are focusing on merging results from split-fasta searches right now, so just include the DBSequences (because each one is tied to a distinct protein)
+            // We are focusing on merging results from split-FASTA searches right now, so just include the DBSequences (because each one is tied to a distinct protein)
             // IDs will need to be changed later to ensure distinction TODO
             target.AddRange(toMerge);
 
-            // correct any duplicate peptide references
+            // Correct any duplicate peptide references
             foreach (var item in toMerge)
             {
                 if (targetPeptides.Contains(item.Peptide))
@@ -804,9 +809,11 @@ namespace MzidMerger
             foreach (var item in toMerge)
             {
                 var matches = target.Where(x => x.SpectrumIdentificationProtocol.Equals(item.SpectrumIdentificationProtocol)).ToList();
+
                 if (matches.Count > 0)
                 {
                     var match = matches[0];
+
                     foreach (var specFile in item.InputSpectra)
                     {
                         if (!match.InputSpectra.Any(x => x.SpectraData.Name.Equals(specFile.SpectraData.Name)))
@@ -1074,6 +1081,7 @@ namespace MzidMerger
 
             // Technically (for keeping search database references straight) we shouldn't combine the individual SpectrumIdentificationLists, but those references are kept alive via the DBSequence
             var targetSpecList = target.First();
+
             foreach (var item in toMerge)
             {
                 Merge(targetSpecList, item, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
@@ -1089,6 +1097,7 @@ namespace MzidMerger
 
             Merge(target.FragmentationTables, toMerge.FragmentationTables);
             Merge(target.SpectrumIdentificationResults, toMerge.SpectrumIdentificationResults, maxSpecEValue, keepOnlyBestResult, remapPostMerge);
+
             // Merge(target.CVParams, toMerge.CVParams);        // TODO: Not used by MS-GF+
             // Merge(target.UserParams, toMerge.UserParams);    // TODO: Not used by MS-GF+
             toMerge.Id = target.Id;
@@ -1144,10 +1153,12 @@ namespace MzidMerger
                 spectraDataLookupByName = new Dictionary<string, SpectraDataObj>();
                 spectrumResultLookupByFilenameAndSpecId = new Dictionary<string, SpectrumIdentificationResultObj>((int)(target.Count * 1.5));
                 target.RemoveAll(x => x.BestSpecEVal() > maxSpecEValue);
+
                 // Only do this once, they are otherwise maintained as we go
                 foreach (var result in target)
                 {
                     var lookupName = CreateSpectrumResultLookupName(result.SpectraData.Name, result.SpectrumID);
+
                     if (!spectrumResultLookupByFilenameAndSpecId.ContainsKey(lookupName))
                     {
                         spectrumResultLookupByFilenameAndSpecId.Add(lookupName, result);
@@ -1165,6 +1176,7 @@ namespace MzidMerger
             }
 
             var totalSize = target.Count + toMerge.Count;
+
             if (target.Capacity < totalSize)
             {
                 target.Capacity = totalSize;
@@ -1207,6 +1219,7 @@ namespace MzidMerger
             }
 
             var toMergeItems = toMerge.SpectrumIdentificationItems.Where(x => !(x.GetSpecEValue() > maxSpecEValue));
+
             if (keepOnlyBestResult)
             {
                 var bestSpecEValue = target.BestSpecEVal();
@@ -1214,6 +1227,7 @@ namespace MzidMerger
             }
 
             var prevCount = target.SpectrumIdentificationItems.Count;
+
             // Add all spectrum identification items
             target.SpectrumIdentificationItems.AddRange(toMergeItems);
 
