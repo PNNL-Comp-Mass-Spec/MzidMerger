@@ -45,6 +45,19 @@ namespace MzidMerger
             merger.MergeIdentData(toMerge, options, true);
 
             // Add the merging information
+            AddMergeMetadataToOutput(options, targetObj);
+
+            Console.WriteLine("Writing merged file...");
+
+            MzIdentMlReaderWriter.Write(new MzIdentMLType(targetObj), options.OutputFilePath);
+
+            stopWatch.Stop();
+            Console.WriteLine("Total time to merge {0} files: {1:g}", options.FilesToMerge.Count, stopWatch.Elapsed);
+        }
+
+        private static void AddMergeMetadataToOutput(Options options, IdentDataObj outputObj)
+        {
+            // Add the merging information
             var mergerSoftware = new AnalysisSoftwareObj
             {
                 Id = "MzidMerger_Id",
@@ -53,9 +66,9 @@ namespace MzidMerger
                 SoftwareName = new ParamObj { Item = new UserParamObj { Name = "MzidMerger" } },
             };
 
-            targetObj.AnalysisSoftwareList.Add(mergerSoftware);
+            outputObj.AnalysisSoftwareList.Add(mergerSoftware);
 
-            targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj
+            outputObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj
             {
                 Name = "Merger_KeepOnlyBestResults",
                 Value = options.KeepOnlyBestResults.ToString()
@@ -63,7 +76,7 @@ namespace MzidMerger
 
             if (options.MaxSpecEValue < 50)
             {
-                targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj
+                outputObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj
                 {
                     Name = "Merger_MaxSpecEValue",
                     Value = options.MaxSpecEValue.ToString(CultureInfo.InvariantCulture)
@@ -77,19 +90,12 @@ namespace MzidMerger
                 var sourceFile = new SourceFileInfo
                 {
                     Id = $"MergedMzid_{count++}",
-                    Location = file,
+                    Location = file, // TODO: should this always be the absolute path to the file?
                     Name = Path.GetFileName(file),
                     FileFormat = new FileFormatInfo { CVParam = new CVParamObj(CV.CVID.MS_mzIdentML_format) },
                 };
-                targetObj.DataCollection.Inputs.SourceFiles.Add(sourceFile);
+                outputObj.DataCollection.Inputs.SourceFiles.Add(sourceFile);
             }
-
-            Console.WriteLine("Writing merged file...");
-
-            MzIdentMlReaderWriter.Write(new MzIdentMLType(targetObj), options.OutputFilePath);
-
-            stopWatch.Stop();
-            Console.WriteLine("Total time to merge {0} files: {1:g}", options.FilesToMerge.Count, stopWatch.Elapsed);
         }
 
         private static IdentDataObj ReadAndPreprocessFile(string filePath, Options options)
@@ -279,6 +285,8 @@ namespace MzidMerger
             // Semaphore: initialCount, is the number initially available, maximumCount is the max allowed
             var threadLimiter = new Semaphore(options.MaxThreads, options.MaxThreads);
             var mergedData = DivideAndConquerMergeIdentData(options.FilesToMerge, threadLimiter, options.MaxSpecEValue, options.KeepOnlyBestResults, true, options).targetIdentDataObj;
+
+            AddMergeMetadataToOutput(options, mergedData);
 
             stopWatch.Stop();
             Console.WriteLine("Mzid read time: {0:g}", mReadTime);
