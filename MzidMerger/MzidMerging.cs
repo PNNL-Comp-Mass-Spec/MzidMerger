@@ -1228,16 +1228,11 @@ namespace MzidMerger
 
             var toMergeItems = toMerge.SpectrumIdentificationItems.Where(x => !(x.GetSpecEValue() > maxSpecEValue));
 
-            if (keepOnlyBestResult)
-            {
-                var bestSpecEValue = target.BestSpecEVal();
-                toMergeItems = toMergeItems.Where(x => x.GetSpecEValue() <= bestSpecEValue);
-            }
-
             var prevCount = target.SpectrumIdentificationItems.Count;
 
             // Add all spectrum identification items
             target.SpectrumIdentificationItems.AddRange(toMergeItems);
+            // TODO: Should we be merging SpectrumIdentificationItems for matching peptides together here?
 
             if (!cleanupPostMerge)
             {
