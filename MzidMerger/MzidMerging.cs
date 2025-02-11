@@ -114,7 +114,7 @@ namespace MzidMerger
                         }
                         else
                         {
-                            fixedModDict.Add(massStr, new List<SearchModificationObj>());
+                            fixedModDict.Add(massStr, new List<SearchModificationObj> { mod });
                         }
                     }
 
