@@ -713,7 +713,7 @@ namespace MzidMerger
 
         private Dictionary<string, PeptideObj> peptideDictionary;
 
-        private void Merge(IdentDataList<PeptideObj> target, IReadOnlyCollection<PeptideObj> toMerge)
+        private void Merge(IdentDataList<PeptideObj> target, IdentDataList<PeptideObj> toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -764,7 +764,8 @@ namespace MzidMerger
             }
         }
 
-        private void Merge(IdentDataList<PeptideEvidenceObj> target, IdentDataList<PeptideEvidenceObj> toMerge, ICollection<PeptideObj> targetPeptides)
+        // ReSharper disable once SuggestBaseTypeForParameter
+        private void Merge(IdentDataList<PeptideEvidenceObj> target, IdentDataList<PeptideEvidenceObj> toMerge, IdentDataList<PeptideObj> targetPeptides)
         {
             if (target == null || toMerge == null)
             {
@@ -1118,7 +1119,7 @@ namespace MzidMerger
 
         private void Merge(
             IdentDataList<SpectrumIdentificationResultObj> target,
-            IReadOnlyCollection<SpectrumIdentificationResultObj> toMerge,
+            IdentDataList<SpectrumIdentificationResultObj> toMerge,
             double maxSpecEValue,
             bool keepOnlyBestResult,
             bool cleanupPostMerge)
