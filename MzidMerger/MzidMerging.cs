@@ -879,6 +879,9 @@ namespace MzidMerger
             // NOTE: references ProteinDetectionProtocol
         }
 
+        /*
+         * Unused methods
+         *
         private static void Merge(IReadOnlyCollection<InputSpectrumIdentificationsObj> target, List<InputSpectrumIdentificationsObj> toMerge)
         {
             if (target == null || toMerge == null)
@@ -903,6 +906,8 @@ namespace MzidMerger
 
             // NOTE: references SpectrumIdentificationList
         }
+
+         */
 
         #endregion
 
@@ -948,6 +953,9 @@ namespace MzidMerger
             }
         }
 
+        /*
+         * Unused methods
+         *
         private static void Merge(ProteinDetectionProtocolObj target, ProteinDetectionProtocolObj toMerge)
         {
             if (target == null || toMerge == null)
@@ -972,11 +980,13 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
+         */
+
         #endregion
 
         #region Data collection contents
 
-        private static void Merge(InputsObj target, InputsObj toMerge, double maxSpecEValue = 100.0)
+        private static void Merge(InputsObj target, InputsObj toMerge)
         {
             if (target == null || toMerge == null)
             {
@@ -1223,6 +1233,9 @@ namespace MzidMerger
 
         #region Unimplemented...
 
+        /*
+         * Unused methods
+         *
         private static void Merge(ProteinDetectionListObj target, ProteinDetectionListObj toMerge)
         {
             if (target == null || toMerge == null)
@@ -1324,7 +1337,6 @@ namespace MzidMerger
             // TODO: Details!!!
         }
 
-        /*
         private static void Merge(Obj target, Obj toMerge)
         {
             if (target == null || toMerge == null)
@@ -1334,7 +1346,8 @@ namespace MzidMerger
 
             // TODO: Details!!!
         }
-        */
+
+         */
 
         #endregion
     }
