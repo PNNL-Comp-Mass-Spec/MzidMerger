@@ -8,6 +8,8 @@ namespace MzidMergeTests
     [TestFixture]
     public class TestMergeMzid
     {
+        // Ignore Spelling: mzid, mzids
+
         [Test]
         public void MergeMzids()
         {

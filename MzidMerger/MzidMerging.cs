@@ -55,15 +55,19 @@ namespace MzidMerger
 
             targetObj.AnalysisSoftwareList.Add(mergerSoftware);
 
-            targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj {
+            targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj
+            {
                 Name = "Merger_KeepOnlyBestResults",
-                Value = options.KeepOnlyBestResults.ToString() });
+                Value = options.KeepOnlyBestResults.ToString()
+            });
 
             if (options.MaxSpecEValue < 50)
             {
-                targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj {
+                targetObj.AnalysisProtocolCollection.SpectrumIdentificationProtocols[0].AdditionalSearchParams.Items.Add(new UserParamObj
+                {
                     Name = "Merger_MaxSpecEValue",
-                    Value = options.MaxSpecEValue.ToString(CultureInfo.InvariantCulture) });
+                    Value = options.MaxSpecEValue.ToString(CultureInfo.InvariantCulture)
+                });
             }
 
             var count = 1;
