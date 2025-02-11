@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MzidMerger": {
+      "commandName": "Project",
+      "commandLineArgs": "-inDir C:\\DMS_WorkDir2 -filter BaldCZ_LL_Test_0pt5ug-uL_F-03_25Oct18_Tiger_18-08-03_msgfplus_Part*.mzid.gz -keepOnlyBestResults -out BaldCZ_LL_Test_0pt5ug-uL_F-01_25Oct18_Tiger_18-08-03_msgfplus.mzid"
+    }
+  }
+}
