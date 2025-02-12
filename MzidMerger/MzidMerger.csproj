@@ -22,7 +22,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="PRISM-Library" Version="2.9.5" />
-    <PackageReference Include="PSI_Interface" Version="2.7.3" />
+    <PackageReference Include="PSI_Interface" Version="2.7.9" />
   </ItemGroup>
   <!-- Disabled for now; causes an infinite build loop without the -\-no-build flag, which isn't available for .NET Core 2.0 (requires 2.1)
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
