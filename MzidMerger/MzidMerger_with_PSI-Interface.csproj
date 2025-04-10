@@ -21,7 +21,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="PRISM-Library" Version="2.9.5" />
+    <PackageReference Include="PRISM-Library" Version="2.9.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\PSI_Interface\PSI_Interface\PSI_Interface.csproj" />
