@@ -11,9 +11,9 @@ echo.
 pause
 @echo on
 
-xcopy Debug\net48\MzidMerger.exe \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution\MzidMerger\ /D /Y
-xcopy Debug\net48\MzidMerger.pdb \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution\MzidMerger\ /D /Y
-xcopy Debug\net48\*.dll          \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution\MzidMerger\ /D /Y
-xcopy ..\..\Readme.md            \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution\MzidMerger\ /D /Y
+xcopy Debug\net48\MzidMerger.exe \\Proto-3\DMS_Programs_Dist\AnalysisToolManagerDistribution\MzidMerger\ /D /Y
+xcopy Debug\net48\MzidMerger.pdb \\Proto-3\DMS_Programs_Dist\AnalysisToolManagerDistribution\MzidMerger\ /D /Y
+xcopy Debug\net48\*.dll          \\Proto-3\DMS_Programs_Dist\AnalysisToolManagerDistribution\MzidMerger\ /D /Y
+xcopy ..\..\Readme.md            \\Proto-3\DMS_Programs_Dist\AnalysisToolManagerDistribution\MzidMerger\ /D /Y
 
 pause
